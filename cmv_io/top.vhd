@@ -73,8 +73,8 @@ entity top is
 	i2c0_sda : inout std_ulogic;
 	i2c0_scl : inout std_ulogic;
 	--
-	i2c1_sda : inout std_ulogic;
-	i2c1_scl : inout std_ulogic;
+	-- i2c1_sda : inout std_ulogic;
+	-- i2c1_scl : inout std_ulogic;
 	--
 	spi_en : out std_ulogic;
 	spi_clk : out std_ulogic;
@@ -92,8 +92,8 @@ entity top is
 	cmv_lvds_outclk_p : in std_logic;
 	cmv_lvds_outclk_n : in std_logic;
 	--
-	cmv_lvds_data_p : in unsigned(31 downto 0);
-	cmv_lvds_data_n : in unsigned(31 downto 0);
+	cmv_lvds_data_p : in unsigned(15 downto 0);
+	cmv_lvds_data_n : in unsigned(15 downto 0);
 	--
 	cmv_lvds_ctrl_p : in std_logic;
 	cmv_lvds_ctrl_n : in std_logic;
@@ -239,15 +239,15 @@ architecture RTL of top is
     -- I2C1 Signals
     --------------------------------------------------------------------
 
-    signal i2c1_sda_i : std_ulogic;
-    signal i2c1_sda_o : std_ulogic;
-    signal i2c1_sda_t : std_ulogic;
-    signal i2c1_sda_t_n : std_ulogic;
-
-    signal i2c1_scl_i : std_ulogic;
-    signal i2c1_scl_o : std_ulogic;
-    signal i2c1_scl_t : std_ulogic;
-    signal i2c1_scl_t_n : std_ulogic;
+    -- signal i2c1_sda_i : std_ulogic;
+    -- signal i2c1_sda_o : std_ulogic;
+    -- signal i2c1_sda_t : std_ulogic;
+    -- signal i2c1_sda_t_n : std_ulogic;
+ 
+    -- signal i2c1_scl_i : std_ulogic;
+    -- signal i2c1_scl_o : std_ulogic;
+    -- signal i2c1_scl_t : std_ulogic;
+    -- signal i2c1_scl_t_n : std_ulogic;
 
     --------------------------------------------------------------------
     -- CMV PLL Signals
@@ -283,7 +283,7 @@ architecture RTL of top is
     -- CMV Serdes Signals
     --------------------------------------------------------------------
 
-    constant CHANNELS : natural := 32;
+    constant CHANNELS : natural := 16;
 
     signal iserdes_clk : std_logic;
     signal iserdes_bitslip : std_logic_vector (CHANNELS downto 0);
@@ -472,24 +472,6 @@ architecture RTL of top is
 
     signal comb256_data : comb256_data_t (WRITER_COUNT - 1 downto 0);
 
-    --------------------------------------------------------------------
-    -- Debug Signals
-    --------------------------------------------------------------------
-
-    signal pmod_clk : std_ulogic;
-
-    attribute DONT_TOUCH of pmod_clk : signal is "TRUE";
-
-    signal pmod_v0 : std_logic_vector(63 downto 0);
-
-    attribute DONT_TOUCH of pmod_dbg_jc_inst : label is "TRUE";
-    attribute MARK_DEBUG of pmod_v0 : signal is "TRUE";
-
-    signal pmod_v1 : std_logic_vector(63 downto 0);
-
-    attribute DONT_TOUCH of pmod_dbg_jd_inst : label is "TRUE";
-    attribute MARK_DEBUG of pmod_v1 : signal is "TRUE";
-
 begin
     --------------------------------------------------------------------
     -- PS7 Interface
@@ -505,13 +487,13 @@ begin
 	    i2c0_scl_o => i2c0_scl_o,
 	    i2c0_scl_t_n => i2c0_scl_t_n,
 	    --
-	    i2c1_sda_i => i2c1_sda_i,
-	    i2c1_sda_o => i2c1_sda_o,
-	    i2c1_sda_t_n => i2c1_sda_t_n,
+	    -- i2c1_sda_i => i2c1_sda_i,
+	    -- i2c1_sda_o => i2c1_sda_o,
+	    -- i2c1_sda_t_n => i2c1_sda_t_n,
 	    --
-	    i2c1_scl_i => i2c1_scl_i,
-	    i2c1_scl_o => i2c1_scl_o,
-	    i2c1_scl_t_n => i2c1_scl_t_n,
+	    -- i2c1_scl_i => i2c1_scl_i,
+	    -- i2c1_scl_o => i2c1_scl_o,
+	    -- i2c1_scl_t_n => i2c1_scl_t_n,
 	    --
 	    m_axi0_aclk => m_axi0_aclk,
 	    m_axi0_areset_n => m_axi0_areset_n,
@@ -685,25 +667,25 @@ begin
     -- I2C bus #1
     --------------------------------------------------------------------
 
-    i2c1_sda_t <= not i2c1_sda_t_n;
-
-    IOBUF_sda_inst1 : IOBUF
-	generic map (
-	    IOSTANDARD => "LVCMOS33",
-	    DRIVE => 4 )
-	port map (
-	    I => i2c1_sda_o, O => i2c1_sda_i,
-	    T => i2c1_sda_t, IO => i2c1_sda );
-
-    i2c1_scl_t <= not i2c1_scl_t_n;
-
-    IOBUF_scl_inst1 : IOBUF
-	generic map (
-	    IOSTANDARD => "LVCMOS33",
-	    DRIVE => 4 )
-	port map (
-	    I => i2c1_scl_o, O => i2c1_scl_i,
-	    T => i2c1_scl_t, IO => i2c1_scl );
+    -- i2c1_sda_t <= not i2c1_sda_t_n;
+   
+    -- IOBUF_sda_inst1 : IOBUF
+    -- generic map (
+    --     IOSTANDARD => "LVCMOS33",
+    --     DRIVE => 4 )
+    -- port map (
+    --     I => i2c1_sda_o, O => i2c1_sda_i,
+    --     T => i2c1_sda_t, IO => i2c1_sda );
+   
+    -- i2c1_scl_t <= not i2c1_scl_t_n;
+   
+    -- IOBUF_scl_inst1 : IOBUF
+	-- generic map (
+	--     IOSTANDARD => "LVCMOS33",
+	--     DRIVE => 4 )
+	-- port map (
+	--     I => i2c1_scl_o, O => i2c1_scl_i,
+	--     T => i2c1_scl_t, IO => i2c1_scl );
 
     --------------------------------------------------------------------
     -- CMV PLL/LVDS MMCM
@@ -922,7 +904,7 @@ begin
 	port map (
 	    O => cmv_lvds_clk_p,
 	    OB => cmv_lvds_clk_n,
-	    I => cmv_clk_300 );
+	    I => '0' );
 
     IBUFDS_inst : IBUFDS
 	generic map (
@@ -992,232 +974,6 @@ begin
 		bitslip		=> iserdes_bitslip(I) );
 
     end generate;
-
-
-    --------------------------------------------------------------------
-    -- First Level Combiner 4x 12/16 -> 64
-    --------------------------------------------------------------------
-
-    GEN_4TO1_64: for I in 7 downto 0 generate
-    begin
-	comb64_4to1_inst : entity work.data_4to1
-	    generic map (
-		DI_WIDTH => 16,
-		DI_BLOCK => 16,
-		DO_WIDTH => 64 )
-	    port map (
-		clk => iserdes_clk,
-		rst => comb64_reset(I),
-		--
-		data_in0 => cmv_data(I*4 + 0),
-		data_in1 => cmv_data(I*4 + 1),
-		data_in2 => cmv_data(I*4 + 2),
-		data_in3 => cmv_data(I*4 + 3),
-		push_in => cmv_push(I*4 + 3 downto I*4),
-		--
-		data_out => comb64_data(I),
-		push_out => comb64_push(I) );
-
-    end generate;
-
-
-    --------------------------------------------------------------------
-    -- Second Level Combiner 4x 64 -> 256
-    --------------------------------------------------------------------
-
-    GEN_4TO1_256: for I in 1 downto 0 generate
-    begin
-
-	comb256_4to1_inst : entity work.data_4to1
-	    generic map (
-		DI_WIDTH => 64,
-		DI_BLOCK => 64,
-		DO_WIDTH => 256 )
-	    port map (
-		clk => iserdes_clk,
-		rst => comb256_reset(I),
-		--
-		data_in0 => comb64_data(I*4 + 0),
-		data_in1 => comb64_data(I*4 + 1),
-		data_in2 => comb64_data(I*4 + 2),
-		data_in3 => comb64_data(I*4 + 3),
-		push_in => comb64_push(I*4 + 3 downto I*4),
-		--
-		data_out => comb256_data(I),
-		push_out => comb256_push(I) );
-
-    end generate;
-
-
-    --------------------------------------------------------------------
-    -- Data FIFO 
-    --------------------------------------------------------------------
-
-    GEN_FIFO: for I in 1 downto 0 generate
-    begin
-
-	FIFO_data_inst : FIFO_DUALCLOCK_MACRO
-	    generic map (
-		DEVICE => "7SERIES",
-		ALMOST_EMPTY_OFFSET => x"0010",
-		DATA_WIDTH => 64,
-		FIFO_SIZE => "36Kb",
-		FIRST_WORD_FALL_THROUGH => TRUE )
-	    port map (
-		DI => fifo_data_in(I),
-		WRCLK => fifo_data_wclk,
-		WREN => fifo_data_wen(I),
-		FULL => fifo_data_full(I),
-		WRERR => fifo_data_wrerr(I),
-		WRCOUNT => fifo_data_wrcount(I),
-		--
-		DO => fifo_data_out(I),
-		RDCLK => fifo_data_rclk(I),
-		RDEN => fifo_data_ren(I),
-		EMPTY => fifo_data_empty(I),
-		ALMOSTEMPTY => fifo_data_low(I),
-		RDERR => fifo_data_rderr(I),
-		RDCOUNT => fifo_data_rdcount(I),
-		--
-		RST => fifo_data_reset(I) );
-
-	fifo_data_rclk(I) <= data_clk(I);
-	fifo_data_ren(I) <= data_enable(I);
-	data_empty(I) <= fifo_data_low(I);
-	data_in(I) <= fifo_data_out(I);
-
-
-	data_proc : process(fifo_data_wclk, comb256_push(I), cmv_capture)
-	    variable cnt_v : unsigned(1 downto 0) := "00";
-	    variable pos_v : natural range 0 to 255;
-	    variable data_v : std_logic_vector(63 downto 0);
-	    variable wen_v : std_logic := '0';
-	    variable push_v : boolean := false;
-
-	begin
-	    if rising_edge(fifo_data_wclk) then
-		if fifo_data_reset(I) = '1' then
-		    cnt_v := "00";
-		    wen_v := '0';
-
-		elsif push_v then
-		    pos_v := to_integer(cnt_v) * 64;
-		    data_v := comb256_data(I)(pos_v + 63 downto pos_v);
-		    wen_v := '1';
-
-		    cnt_v := cnt_v + "1";
-		    if cnt_v = "00" then
-			push_v := false;
-		    end if;
-
-		else
-		    wen_v := '0';
-
-		    if comb256_push(I) = '1' then
-			push_v := true;
-		    end if;
-		end if;
-	    end if;
-	
-	    fifo_data_in(I) <= data_v;
-	    fifo_data_wen(I) <= wen_v and and_reduce(
-		(cmv_trigger & data_v(14 downto 12)) or
-		(not reg_oreg(2)(27 downto 24))) and
-		cmv_capture;
-
-	end process;
-    end generate;
-
-    fifo_data_wclk <= iserdes_clk;
-
-    trigger_proc : process(iserdes_clk)
-	variable trigger_v : std_logic := '0';
-    begin
-	if rising_edge(iserdes_clk) then
-	    if reg_oreg(0)(20) = '1' then
-		trigger_v := '0';
-	
-	    elsif (cmv_data_par(CHANNELS)(3 downto 0)
-		and reg_oreg(0)(27 downto 24)) =
-		reg_oreg(0)(19 downto 16) then
-		trigger_v := '1';
-	    end if;
-	end if;
-
-	cmv_trigger <= trigger_v;
-    end process;
-
-    cmv_capture <= reg_oreg(2)(28);
-
-    iserdes_clk <= lvds_clk_150;
-    idelay_clk <= lvds_clk_30;
-
-    comb64_reset <= reg_oreg(2)(7 downto 0);
-    comb256_reset <= reg_oreg(2)(9 downto 8);
-
-    fifo_data_reset <= reg_oreg(2)(17 downto 16);
-    cmv_rst_sys <= '0';
-
-
-    reg_ireg(0) <= cmv_match(31 downto 0);
-
-
-    --------------------------------------------------------------------
-    -- Address Generator and FIFO
-    --------------------------------------------------------------------
-
-    GEN_ADDR: for I in 1 downto 0 generate
-	addr_gen_inst : entity work.addr_gen
-	    port map (
-		clk => addr_gen_clk(I),
-		reset => addr_gen_reset(I),
-		enable => addr_gen_enable(I),
-		auto => addr_gen_auto(I),
-		--
-		addr_min => x"00000000",
-		addr_inc => x"00000080",
-		addr_max => x"00FFFF80",
-		--
-		addr => fifo_addr_in(I) );
-
-	addr_gen_clk(I) <= lvds_clk_75;
-	addr_gen_reset(I) <= reg_oreg(3)(16 + I);
-	addr_gen_auto(I) <= reg_oreg(3)(24 + I);
-	addr_gen_enable(I) <= not fifo_addr_full(I);
-
-	FIFO_addr_inst : FIFO_DUALCLOCK_MACRO
-	    generic map (
-		DEVICE => "7SERIES",
-		DATA_WIDTH => 32,
-		FIFO_SIZE => "18Kb",
-		FIRST_WORD_FALL_THROUGH => TRUE )
-	    port map (
-		DI => fifo_addr_in(I),
-		WRCLK => fifo_addr_wclk(I),
-		WREN => fifo_addr_wen(I),
-		FULL => fifo_addr_full(I),
-		WRERR => fifo_addr_wrerr(I),
-		WRCOUNT => fifo_addr_wrcount(I),
-		--
-		DO => fifo_addr_out(I),
-		RDCLK => fifo_addr_rclk(I),
-		RDEN => fifo_addr_ren(I),
-		EMPTY => fifo_addr_empty(I),
-		RDERR => fifo_addr_rderr(I),
-		RDCOUNT => fifo_addr_rdcount(I),
-		--
-		RST => fifo_addr_reset(I) );
-
-	fifo_addr_wclk(I) <= addr_gen_clk(I);
-	fifo_addr_wen(I) <= not fifo_addr_full(I);
-	fifo_addr_rclk(I) <= addr_clk(I);
-	fifo_addr_ren(I) <= addr_enable(I);
-	fifo_addr_reset(I) <= reg_oreg(3)(20 + I);
-	addr_empty(I) <= fifo_addr_empty(I);
-	addr_in(I) <= fifo_addr_out(I);
-
-    end generate;
-
 
     --------------------------------------------------------------------
     -- AXIHP Writer
@@ -1318,147 +1074,5 @@ begin
 			 fifo_addr_wrerr & fifo_addr_rderr);
     led(6) <= or_reduce (fifo_addr_empty);
     led(7) <= or_reduce (fifo_data_empty);
-
-    --------------------------------------------------------------------
-    -- PMOD Debug
-    --------------------------------------------------------------------
-
-    pmod_clk <= clk_100;
-
-    pmod_dbg_jd_inst : entity work.pmod_debug
-	generic map (
-	    PRESCALE => 12 )
-	port map (
-	    clk => pmod_clk,
-	    --
-	    value => pmod_v0,
-	    --
-	    jxm => pmod_jdm,
-	    jxa => pmod_jda );
-
-    pmod_dbg_jc_inst : entity work.pmod_debug
-	generic map (
-	    PRESCALE => 12 )
-	port map (
-	    clk => pmod_clk,
-	    --
-	    value => pmod_v1,
-	    --
-	    jxm => pmod_jcm,
-	    jxa => pmod_jca );
-
-    pmod_proc : process (
-	pmod_clk, swi,
-	cmv_match, cmv_fail, cmv_data_par,
-	m_axi0_wo, m_axi0_wi, m_axi0_ro, m_axi0_ri )
-    begin
-	case swi_mval(3 downto 0) is
-	    when "0000" =>
-		pmod_v0 <= cmv_match(0)	 & cmv_fail(0)(7 downto 5)  & cmv_data_par(0) &
-			   cmv_match(1)	 & cmv_fail(1)(7 downto 5)  & cmv_data_par(1) &
-			   cmv_match(2)	 & cmv_fail(2)(7 downto 5)  & cmv_data_par(2) &
-			   cmv_match(3)	 & cmv_fail(3)(7 downto 5)  & cmv_data_par(3);
-
-		pmod_v1 <= cmv_match(4)	 & cmv_fail(4)(7 downto 5)  & cmv_data_par(4) &
-			   cmv_match(5)	 & cmv_fail(5)(7 downto 5)  & cmv_data_par(5) &
-			   cmv_match(6)	 & cmv_fail(6)(7 downto 5)  & cmv_data_par(6) &
-			   cmv_match(7)	 & cmv_fail(7)(7 downto 5)  & cmv_data_par(7);
-
-	    when "0001" =>
-		pmod_v0 <= cmv_match(8)	 & cmv_fail(8)(7 downto 5)  & cmv_data_par(8) &
-			   cmv_match(9)	 & cmv_fail(9)(7 downto 5)  & cmv_data_par(9) &
-			   cmv_match(10) & cmv_fail(10)(7 downto 5) & cmv_data_par(10) &
-			   cmv_match(11) & cmv_fail(11)(7 downto 5) & cmv_data_par(11);
-
-		pmod_v1 <= cmv_match(12) & cmv_fail(12)(7 downto 5) & cmv_data_par(12) &
-			   cmv_match(13) & cmv_fail(13)(7 downto 5) & cmv_data_par(13) &
-			   cmv_match(14) & cmv_fail(14)(7 downto 5) & cmv_data_par(14) &
-			   cmv_match(15) & cmv_fail(15)(7 downto 5) & cmv_data_par(15);
-
-	    when "0010" =>
-		pmod_v0 <= cmv_match(16) & cmv_fail(16)(7 downto 5) & cmv_data_par(16) &
-			   cmv_match(17) & cmv_fail(17)(7 downto 5) & cmv_data_par(17) &
-			   cmv_match(18) & cmv_fail(18)(7 downto 5) & cmv_data_par(18) &
-			   cmv_match(19) & cmv_fail(19)(7 downto 5) & cmv_data_par(19);
-
-		pmod_v1 <= cmv_match(20) & cmv_fail(20)(7 downto 5) & cmv_data_par(20) &
-			   cmv_match(21) & cmv_fail(21)(7 downto 5) & cmv_data_par(21) &
-			   cmv_match(22) & cmv_fail(22)(7 downto 5) & cmv_data_par(22) &
-			   cmv_match(23) & cmv_fail(23)(7 downto 5) & cmv_data_par(23);
-
-	    when "0011" =>
-		pmod_v0 <= cmv_match(24) & cmv_fail(24)(7 downto 5) & cmv_data_par(24) &
-			   cmv_match(25) & cmv_fail(25)(7 downto 5) & cmv_data_par(25) &
-			   cmv_match(26) & cmv_fail(26)(7 downto 5) & cmv_data_par(26) &
-			   cmv_match(27) & cmv_fail(27)(7 downto 5) & cmv_data_par(27);
-
-		pmod_v1 <= cmv_match(28) & cmv_fail(28)(7 downto 5) & cmv_data_par(28) &
-			   cmv_match(29) & cmv_fail(29)(7 downto 5) & cmv_data_par(29) &
-			   cmv_match(30) & cmv_fail(30)(7 downto 5) & cmv_data_par(30) &
-			   cmv_match(31) & cmv_fail(31)(7 downto 5) & cmv_data_par(31);
-
-	    when "0100" =>
-		pmod_v0 <= x"000000000000" &
-			   cmv_match(32) & cmv_fail(32)(7 downto 5) & cmv_data_par(32);
-
-		pmod_v1 <= (others => '0');
-
-	    when "0101" =>
-		pmod_v0 <= fifo_addr_in(0) & fifo_addr_out(0);
-		pmod_v1 <= fifo_addr_in(1) & fifo_addr_out(1);
-
-	    when "0110" =>
-		pmod_v0 <= data_in(0);
-		pmod_v1 <= data_in(1);
-
-	    when "0111" =>
-		pmod_v0 <= "000000" & data_empty & "000000" & addr_empty &
-			   "000000" & data_enable & "000000" & addr_enable &
-			   "000000" & fifo_data_wen & "000000" & fifo_data_ren &
-			   comb64_push  & "000000" & comb256_push;
-
-		pmod_v1 <= "000000" & fifo_addr_full & "000000" & fifo_addr_empty &
-			   "000000" & fifo_addr_wrerr & "000000" & fifo_addr_rderr &
-			   "000000" & fifo_data_full & "000000" &  fifo_data_empty &
-			   "000000" & fifo_data_wrerr & "000000" & fifo_data_rderr;
-
-	    when "1000" =>
-		pmod_v0 <= comb64_data(0);
-		pmod_v1 <= comb256_data(0)(63 downto 0);
-
-	    when "1001" =>
-		pmod_v0 <= comb64_data(1);
-		pmod_v1 <= comb256_data(0)(127 downto 64);
-
-	    when "1010" =>
-		pmod_v0 <= comb64_data(2);
-		pmod_v1 <= comb256_data(0)(191 downto 128);
-
-	    when "1011" =>
-		pmod_v0 <= comb64_data(3);
-		pmod_v1 <= comb256_data(0)(255 downto 192);
-
-	    when "1100" =>
-		pmod_v0 <= comb64_data(4);
-		pmod_v1 <= comb256_data(1)(63 downto 0);
-
-	    when "1101" =>
-		pmod_v0 <= comb64_data(5);
-		pmod_v1 <= comb256_data(1)(127 downto 64);
-
-	    when "1110" =>
-		pmod_v0 <= comb64_data(6);
-		pmod_v1 <= comb256_data(1)(191 downto 128);
-
-	    when "1111" =>
-		pmod_v0 <= comb64_data(7);
-		pmod_v1 <= comb256_data(1)(255 downto 192);
-
-	    when others =>
-		pmod_v0 <= (others => '0');
-
-		pmod_v1 <= (others => '0');
-	end case;
-    end process;
 
 end RTL;

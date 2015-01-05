@@ -420,10 +420,10 @@ begin
 	EMIOI2C0SCLTN			=> i2c0_scl_t_n,	-- out std_ulogic;
 	EMIOI2C0SDAO			=> i2c0_sda_o,		-- out std_ulogic;
 	EMIOI2C0SDATN			=> i2c0_sda_t_n,	-- out std_ulogic;
-	EMIOI2C1SCLO			=> i2c1_scl_o,		-- out std_ulogic;
-	EMIOI2C1SCLTN			=> i2c1_scl_t_n,	-- out std_ulogic;
-	EMIOI2C1SDAO			=> i2c1_sda_o,		-- out std_ulogic;
-	EMIOI2C1SDATN			=> i2c1_sda_t_n,	-- out std_ulogic;
+	EMIOI2C1SCLO			=> open,     	-- out std_ulogic;
+	EMIOI2C1SCLTN			=> open,     	-- out std_ulogic;
+	EMIOI2C1SDAO			=> open,     	-- out std_ulogic;
+	EMIOI2C1SDATN			=> open,     	-- out std_ulogic;
 	EMIOPJTAGTDO			=> open,		-- out std_ulogic;
 	EMIOPJTAGTDTN			=> open,		-- out std_ulogic;
 	EMIOSDIO0BUSPOW			=> open,		-- out std_ulogic;
@@ -703,8 +703,8 @@ begin
 	EMIOGPIOI			=> emio_gpio_i,		-- in std_logic_vector(63 downto 0);
 	EMIOI2C0SCLI			=> i2c0_scl_i,		-- in std_ulogic;
 	EMIOI2C0SDAI			=> i2c0_sda_i,		-- in std_ulogic;
-	EMIOI2C1SCLI			=> i2c1_scl_i,		-- in std_ulogic;
-	EMIOI2C1SDAI			=> i2c1_sda_i,		-- in std_ulogic;
+	EMIOI2C1SCLI			=> '0',		-- in std_ulogic;
+	EMIOI2C1SDAI			=> '0',		-- in std_ulogic;
 	EMIOPJTAGTCK			=> '0',			-- in std_ulogic;
 	EMIOPJTAGTDI			=> '0',			-- in std_ulogic;
 	EMIOPJTAGTMS			=> '0',			-- in std_ulogic;

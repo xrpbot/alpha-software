@@ -48,10 +48,10 @@ architecture RTL of reg_spi is
 
     signal spi_write : std_logic;
     signal spi_addr : std_logic_vector(6 downto 0);
-    signal spi_din : std_logic_vector(15 downto 0);
+    signal spi_din : std_logic_vector(7 downto 0);
     signal spi_go : std_logic;
 
-    signal spi_dout : std_logic_vector(15 downto 0);
+    signal spi_dout : std_logic_vector(7 downto 0);
     signal spi_active : std_logic;
 
 begin
@@ -247,8 +247,8 @@ begin
 	-- s_axi_wo.bid <= rwid_v;
 
 	spi_addr <= addr_v(8 downto 2);
-	spi_din <= wdata_v(15 downto 0);
-	s_axi_ro.rdata(15 downto 0) <= spi_dout;
+	spi_din <= wdata_v(7 downto 0);
+	s_axi_ro.rdata(7 downto 0) <= spi_dout;
 
 	spi_write <= spi_write_v;
 	spi_go <= spi_go_v;

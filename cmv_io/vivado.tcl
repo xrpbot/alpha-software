@@ -6,9 +6,9 @@
 
 set ODIR .
 set_param messaging.defaultLimit 10000
-set_msg_limit -severity WARNING 50000
-set_msg_limit -id "Synth 8-3332" 5
-set_msg_limit -id "Synth 8-3295" 5
+#set_msg_limit -severity WARNING 50000
+#set_msg_limit -id "Synth 8-3332" 5
+#set_msg_limit -id "Synth 8-3295" 5
 
 # STEP#1: setup design sources and constraints
 
@@ -20,7 +20,7 @@ read_vhdl ../reg_file.vhd
 read_vhdl ../reg_delay.vhd
 read_vhdl ../async_div.vhd
 read_vhdl ../sync_div.vhd
-read_vhdl ../pmod_debug.vhd
+# read_vhdl ../pmod_debug.vhd
 # read_vhdl ../pmod_encode.vhd
 read_vhdl ../lvds_pll.vhd
 read_vhdl ../cmv_spi.vhd
@@ -35,7 +35,7 @@ read_vhdl ../axi3_lite_pkg.vhd
 read_vhdl ../reduce_pkg.vhd
 read_vhdl ../top.vhd
 
-read_xdc ../pmod_debug.xdc
+# read_xdc ../pmod_debug.xdc
 # read_xdc ../pmod_encode.xdc
 read_xdc ../cmv.xdc
 read_xdc ../top.xdc

@@ -23,10 +23,10 @@ entity cmv_spi is
 	--
 	spi_write : in std_logic;
 	spi_addr : in std_logic_vector(6 downto 0);
-	spi_din : in std_logic_vector(15 downto 0);
+	spi_din : in std_logic_vector(7 downto 0);
 	spi_go : in std_logic;
 	--
-	spi_dout : out std_logic_vector(15 downto 0);
+	spi_dout : out std_logic_vector(7 downto 0);
 	spi_active : out std_logic;
 	--
 	spi_clk : out std_logic;
@@ -48,13 +48,13 @@ begin
 
 	variable state : spi_state_t := idle_s;
 
-	variable seq : natural range 0 to 15 := 0;
+	variable seq : natural range 0 to 7 := 0;
 
 	variable spi_en_v : std_logic := '0';
 	variable spi_in_v : std_logic := '0';
 
 	variable spi_active_v : std_logic := '0';
-	variable spi_dout_v : std_logic_vector(15 downto 0);
+	variable spi_dout_v : std_logic_vector(7 downto 0);
 
     begin
 	if rising_edge(spi_clk_in) then
@@ -82,16 +82,16 @@ begin
 		    end if;
 
 		when read_s =>
-		    spi_dout_v(15 - seq) := spi_out;
+		    spi_dout_v(7 - seq) := spi_out;
 
-		    if seq = 15 then
+		    if seq = 7 then
 			state := done_s;
 		    else
 			seq := seq + 1;
 		    end if;
 
 		when write_s =>
-		    if seq = 15 then
+		    if seq = 7 then
 			state := done_s;
 		    else
 			seq := seq + 1;
@@ -124,7 +124,7 @@ begin
 		    spi_in_v := '0';
 
 		when write_s =>
-		    spi_in_v := spi_din(15 - seq);
+		    spi_in_v := spi_din(7 - seq);
 
 		when others =>
 		    null;
