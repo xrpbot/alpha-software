@@ -54,7 +54,7 @@ begin
 	CLKIN1_PERIOD => 10.0,
 	CLKFBOUT_MULT => 12,
 	CLKOUT0_DIVIDE => 1200/300,	-- 300MHz LVDS clock
-	CLKOUT1_DIVIDE => 1200/240,	-- 240MHz LVDS clock
+	CLKOUT1_DIVIDE => 1200/24,	--  48MHz LVDS clock
 	CLKOUT2_DIVIDE => 1200/200,	-- 200MHz LVDS clock
 	CLKOUT3_DIVIDE => 1200/150,	-- 150MHz LVDS clock
 	CLKOUT4_DIVIDE => 1200/30,	--  30MHz Clock
@@ -89,24 +89,26 @@ begin
     lvds_mmcm_inst : MMCME2_BASE
     generic map (
 	BANDWIDTH => "OPTIMIZED",
-	CLKIN1_PERIOD => 6.666,
-	CLKFBOUT_MULT_F => 8.0,
-	CLKOUT0_DIVIDE_F => 60.00,	--  10MHz PMOD
-	CLKOUT1_DIVIDE => 1200/600,	-- 300MHz LVDS
-	CLKOUT2_DIVIDE => 1200/300,	-- 150MHz LVDS
-	CLKOUT3_DIVIDE => 1200/150,	--  75MHz LVDS
-	CLKOUT4_DIVIDE => 1200/100,	--  50MHz LVDS
-	CLKOUT5_DIVIDE => 1200/60,	--  30MHz LVDS
+	--CLKIN1_PERIOD => 4.167,
+	--CLKFBOUT_MULT_F => 5.0,
+	CLKIN1_PERIOD => 8.333,
+	CLKFBOUT_MULT_F => 10.0,
+	CLKOUT0_DIVIDE_F => 5.0, 		--  240MHz LVDS
+	CLKOUT1_DIVIDE => 1200/600,		-- 300MHz LVDS
+	CLKOUT2_DIVIDE => 1200/300,		-- 150MHz LVDS
+	CLKOUT3_DIVIDE => 1200/20,		-- 10 MHz PMOD
+	CLKOUT4_DIVIDE => 1200/100,		--  50MHz LVDS
+	CLKOUT5_DIVIDE => 1200/60,		--  30MHz LVDS
 	DIVCLK_DIVIDE => 2 )
     port map (
 	CLKIN1 => lvds_clk_in,
 	CLKFBOUT => mmcm_fbout,
 	CLKFBIN => mmcm_fbin,
-
-	CLKOUT0 => mmcm_clk_out(5),
+ 
+	CLKOUT0 => mmcm_clk_out(2),
 	CLKOUT1 => mmcm_clk_out(0),
 	CLKOUT2 => mmcm_clk_out(1),
-	CLKOUT3 => mmcm_clk_out(2),
+	CLKOUT3 => mmcm_clk_out(5),
 	CLKOUT4 => mmcm_clk_out(3),
 	CLKOUT5 => mmcm_clk_out(4),
 

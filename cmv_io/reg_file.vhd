@@ -141,7 +141,7 @@ begin
 
 		--  ARVALID ---> RVALID		    Master
 		--     \	 /`   \
-		--	\,	/      \,
+		--		\,	/      \,
 		--	 ARREADY     RREADY	    Slave
 
 		    when r_addr =>
@@ -181,7 +181,7 @@ begin
 
 		--  AWVALID ---> WVALID	 _	       BREADY	    Master
 		--     \    --__ /`   \	  --__		/`
-		--	\,	/--__  \,     --_      /
+		--		\,		/--__  \,     --_      /
 		--	 AWREADY     -> WREADY ---> BVALID	    Slave
 
 		    when w_addr =>

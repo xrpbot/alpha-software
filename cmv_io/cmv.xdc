@@ -12,16 +12,19 @@ set_property PACKAGE_PIN R7 [get_ports cmv_t_exp1]
 set_property PACKAGE_PIN U7 [get_ports cmv_t_exp2]
 set_property PACKAGE_PIN D21 [get_ports cmv_frame_req]
 
+set_property PACKAGE_PIN T19 [get_ports cmv_sys_res_n]
+
 set_property IOSTANDARD LVCMOS33 [get_ports cmv_t_*]
 set_property IOSTANDARD LVCMOS25 [get_ports cmv_clk]
+set_property IOSTANDARD LVCMOS25 [get_ports cmv_sys_res_n]
 set_property IOSTANDARD LVCMOS25 [get_ports cmv_frame_req]
 
 
-set_property PACKAGE_PIN L19 [get_ports cmv_lvds_outclk_n]
-set_property PACKAGE_PIN L18 [get_ports cmv_lvds_outclk_p]
+set_property PACKAGE_PIN C19 [get_ports cmv_lvds_outclk_n]
+set_property PACKAGE_PIN D18 [get_ports cmv_lvds_outclk_p]
 
-set_property PACKAGE_PIN C19 [get_ports cmv_lvds_clk_n]
-set_property PACKAGE_PIN D18 [get_ports cmv_lvds_clk_p]
+set_property PACKAGE_PIN L19 [get_ports cmv_lvds_clk_n]
+set_property PACKAGE_PIN L18 [get_ports cmv_lvds_clk_p]
 
 set_property PACKAGE_PIN A22 [get_ports cmv_lvds_ctrl_n]
 set_property PACKAGE_PIN A21 [get_ports cmv_lvds_ctrl_p]

@@ -84,7 +84,8 @@ entity top is
 	cmv_clk : out std_ulogic;
 	cmv_t_exp1 : out std_ulogic;
 	cmv_t_exp2 : out std_ulogic;
-	cmv_frame_req : out std_ulogic;
+    cmv_frame_req : out std_ulogic;
+    cmv_sys_res_n : out std_ulogic;
 	--
 	cmv_lvds_clk_p : out std_logic;
 	cmv_lvds_clk_n : out std_logic;
@@ -257,7 +258,7 @@ architecture RTL of top is
     signal cmv_pll_locked : std_ulogic;
 
     signal cmv_clk_300 : std_ulogic;
-    signal cmv_clk_240 : std_ulogic;
+    signal cmv_clk_48 : std_ulogic;
     signal cmv_clk_200 : std_ulogic;
     signal cmv_clk_150 : std_ulogic;
     signal cmv_clk_30 : std_ulogic;
@@ -274,7 +275,7 @@ architecture RTL of top is
 
     signal lvds_clk_300 : std_ulogic;
     signal lvds_clk_150 : std_ulogic;
-    signal lvds_clk_75 : std_ulogic;
+    signal lvds_clk_120 : std_ulogic;
     signal lvds_clk_50 : std_ulogic;
     signal lvds_clk_30 : std_ulogic;
     signal lvds_clk_10 : std_ulogic;
@@ -704,7 +705,7 @@ begin
 	    lvds_locked => lvds_clk_locked );
 
     cmv_clk_300 <= cmv_pll(0);
-    cmv_clk_240 <= cmv_pll(1);
+    cmv_clk_48 <= cmv_pll(1);
     cmv_clk_200 <= cmv_pll(2);
     cmv_clk_150 <= cmv_pll(3);
     cmv_clk_30 <= cmv_pll(4);
@@ -712,7 +713,7 @@ begin
 
     lvds_clk_300 <= lvds_clk(0);
     lvds_clk_150 <= lvds_clk(1);
-    lvds_clk_75 <= lvds_clk(2);
+    lvds_clk_120 <= lvds_clk(2);
     lvds_clk_50 <= lvds_clk(3);
     lvds_clk_30 <= lvds_clk(4);
     lvds_clk_10 <= lvds_clk(5);
@@ -891,11 +892,12 @@ begin
     -- LVDS Input and Deserializer
     --------------------------------------------------------------------
 
-    cmv_clk <= cmv_clk_30;
+    cmv_clk <= cmv_clk_48;
 
     cmv_frame_req <= btn_mval(4);
     cmv_t_exp1 <= btn_mval(3);
     cmv_t_exp2 <= btn_mval(2);
+    cmv_sys_res_n <= not btn_mval(0);
 
     OBUFDS_inst : OBUFDS
 	generic map (
@@ -904,7 +906,8 @@ begin
 	port map (
 	    O => cmv_lvds_clk_p,
 	    OB => cmv_lvds_clk_n,
-	    I => '0' );
+        --I => cmv_clk_48 );
+        I => '0' );
 
     IBUFDS_inst : IBUFDS
 	generic map (
@@ -1060,14 +1063,14 @@ begin
 	generic map (
 	    STAGES => 28 )
 	port map (
-	    clk_in => cmv_clk_300,
+	    clk_in => lvds_clk_120,
 	    clk_out => led(4) );
 
     div_lvds_inst1 : entity work.async_div
 	generic map (
 	    STAGES => 28 )
 	port map (
-	    clk_in => lvds_clk_150,
+	    clk_in => cmv_outclk,
 	    clk_out => led(5) );
 
     led(3) <= or_reduce (fifo_data_wrerr & fifo_data_rderr & 
