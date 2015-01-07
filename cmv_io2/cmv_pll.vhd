@@ -52,9 +52,9 @@ begin
     generic map (
 	CLKIN1_PERIOD => 10.0,
 	CLKFBOUT_MULT => 12,
-	CLKOUT0_DIVIDE => 1200/300,	-- 300MHz CMV LVDS clock
+	CLKOUT0_DIVIDE => 1200/240,	-- 240MHZ CMV LVDS clock
 	CLKOUT1_DIVIDE => 1200/200,	-- 200MHz delay ref clock
-	CLKOUT2_DIVIDE => 1200/30,	--  30MHz CMV input clock
+	CLKOUT2_DIVIDE => 1200/24,	--  30MHz CMV input clock
 	CLKOUT3_DIVIDE => 1200/10,	--  10MHz CMV SPI clock
 	CLKOUT4_DIVIDE => 1200/200,	-- 200MHz AXI HP clock
 	--

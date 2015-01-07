@@ -8,17 +8,17 @@ set_property PACKAGE_PIN AA18 [get_ports i2c0_scl]
 
 set_property IOSTANDARD LVCMOS33 [get_ports {i2c0_*}]
 
-set_property PACKAGE_PIN U7 [get_ports i2c1_sda]
-set_property PACKAGE_PIN R7 [get_ports i2c1_scl]
+#set_property PACKAGE_PIN U7 [get_ports i2c1_sda]
+#set_property PACKAGE_PIN R7 [get_ports i2c1_scl]
 
-set_property IOSTANDARD LVCMOS33 [get_ports {i2c1_*}]
+#set_property IOSTANDARD LVCMOS33 [get_ports {i2c1_*}]
 
-set_property PACKAGE_PIN V12 [get_ports spi_en]
-set_property PACKAGE_PIN W11 [get_ports spi_clk]
-set_property PACKAGE_PIN W10 [get_ports spi_in]
-set_property PACKAGE_PIN W12 [get_ports spi_out]
+set_property PACKAGE_PIN K20 [get_ports spi_en]
+set_property PACKAGE_PIN K19 [get_ports spi_clk]
+set_property PACKAGE_PIN C20 [get_ports spi_in]
+set_property PACKAGE_PIN D20 [get_ports spi_out]
 
-set_property IOSTANDARD LVCMOS33 [get_ports {spi_*}]
+set_property IOSTANDARD LVCMOS25 [get_ports {spi_*}]
 
 set_property PACKAGE_PIN T22 [get_ports {led[0]}]
 set_property PACKAGE_PIN T21 [get_ports {led[1]}]

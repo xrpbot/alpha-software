@@ -48,8 +48,8 @@ entity top is
 	i2c0_sda : inout std_ulogic;
 	i2c0_scl : inout std_ulogic;
 	--
-	i2c1_sda : inout std_ulogic;
-	i2c1_scl : inout std_ulogic;
+	-- i2c1_sda : inout std_ulogic;
+	-- i2c1_scl : inout std_ulogic;
 	--
 	spi_en : out std_ulogic;
 	spi_clk : out std_ulogic;
@@ -60,6 +60,7 @@ entity top is
 	cmv_t_exp1 : out std_ulogic;
 	cmv_t_exp2 : out std_ulogic;
 	cmv_frame_req : out std_ulogic;
+    cmv_sys_res_n : out std_ulogic;
 	--
 	cmv_lvds_clk_p : out std_logic;
 	cmv_lvds_clk_n : out std_logic;
@@ -67,17 +68,17 @@ entity top is
 	cmv_lvds_outclk_p : in std_logic;
 	cmv_lvds_outclk_n : in std_logic;
 	--
-	cmv_lvds_data_p : in unsigned(31 downto 0);
-	cmv_lvds_data_n : in unsigned(31 downto 0);
+	cmv_lvds_data_p : in unsigned(15 downto 0);
+	cmv_lvds_data_n : in unsigned(15 downto 0);
 	--
 	cmv_lvds_ctrl_p : in std_logic;
 	cmv_lvds_ctrl_n : in std_logic;
 	--
-	pmod_jcm : out std_logic_vector (3 downto 0);
-	pmod_jca : out std_logic_vector (3 downto 0);
-	--
-	pmod_jdm : out std_logic_vector (3 downto 0);
-	pmod_jda : out std_logic_vector (3 downto 0);
+	-- pmod_jcm : out std_logic_vector (3 downto 0);
+	-- pmod_jca : out std_logic_vector (3 downto 0);
+	-- --
+	-- pmod_jdm : out std_logic_vector (3 downto 0);
+	-- pmod_jda : out std_logic_vector (3 downto 0);
 	--
 	btn : in std_logic_vector (4 downto 0);
 	swi : in std_logic_vector (7 downto 0);
@@ -153,15 +154,15 @@ architecture RTL of top is
     -- I2C1 Signals
     --------------------------------------------------------------------
 
-    signal i2c1_sda_i : std_ulogic;
-    signal i2c1_sda_o : std_ulogic;
-    signal i2c1_sda_t : std_ulogic;
-    signal i2c1_sda_t_n : std_ulogic;
+    -- signal i2c1_sda_i : std_ulogic;
+    -- signal i2c1_sda_o : std_ulogic;
+    -- signal i2c1_sda_t : std_ulogic;
+    -- signal i2c1_sda_t_n : std_ulogic;
 
-    signal i2c1_scl_i : std_ulogic;
-    signal i2c1_scl_o : std_ulogic;
-    signal i2c1_scl_t : std_ulogic;
-    signal i2c1_scl_t_n : std_ulogic;
+    -- signal i2c1_scl_i : std_ulogic;
+    -- signal i2c1_scl_o : std_ulogic;
+    -- signal i2c1_scl_t : std_ulogic;
+    -- signal i2c1_scl_t_n : std_ulogic;
 
     --------------------------------------------------------------------
     -- CMV PLL Signals
@@ -190,7 +191,7 @@ architecture RTL of top is
     -- LVDS IDELAY Signals
     --------------------------------------------------------------------
 
-    constant CHANNELS : natural := 32;
+    constant CHANNELS : natural := 16;
 
     signal idelay_valid : std_logic;
 
@@ -396,19 +397,19 @@ architecture RTL of top is
     -- PMOD Debug Signals
     --------------------------------------------------------------------
 
-    signal pmod_clk : std_ulogic;
+    -- signal pmod_clk : std_ulogic;
+ 
+    -- attribute DONT_TOUCH of pmod_clk : signal is "TRUE";
+ 
+    -- signal pmod_v0 : std_logic_vector (63 downto 0);
 
-    attribute DONT_TOUCH of pmod_clk : signal is "TRUE";
+    -- attribute DONT_TOUCH of pmod_dbg_jc_inst : label is "TRUE";
+    -- attribute MARK_DEBUG of pmod_v0 : signal is "TRUE";
+ 
+    -- signal pmod_v1 : std_logic_vector (63 downto 0);
 
-    signal pmod_v0 : std_logic_vector (63 downto 0);
-
-    attribute DONT_TOUCH of pmod_dbg_jc_inst : label is "TRUE";
-    attribute MARK_DEBUG of pmod_v0 : signal is "TRUE";
-
-    signal pmod_v1 : std_logic_vector (63 downto 0);
-
-    attribute DONT_TOUCH of pmod_dbg_jd_inst : label is "TRUE";
-    attribute MARK_DEBUG of pmod_v1 : signal is "TRUE";
+    -- attribute DONT_TOUCH of pmod_dbg_jd_inst : label is "TRUE";
+    -- attribute MARK_DEBUG of pmod_v1 : signal is "TRUE";
 
 begin
 
@@ -426,13 +427,13 @@ begin
 	    i2c0_scl_o => i2c0_scl_o,
 	    i2c0_scl_t_n => i2c0_scl_t_n,
 	    --
-	    i2c1_sda_i => i2c1_sda_i,
-	    i2c1_sda_o => i2c1_sda_o,
-	    i2c1_sda_t_n => i2c1_sda_t_n,
-	    --
-	    i2c1_scl_i => i2c1_scl_i,
-	    i2c1_scl_o => i2c1_scl_o,
-	    i2c1_scl_t_n => i2c1_scl_t_n,
+	    -- i2c1_sda_i => i2c1_sda_i,
+	    -- i2c1_sda_o => i2c1_sda_o,
+	    -- i2c1_sda_t_n => i2c1_sda_t_n,
+	    -- --
+	    -- i2c1_scl_i => i2c1_scl_i,
+	    -- i2c1_scl_o => i2c1_scl_o,
+	    -- i2c1_scl_t_n => i2c1_scl_t_n,
 	    --
 	    ps_fclk => ps_fclk,
 	    ps_reset_n => ps_reset_n,
@@ -677,25 +678,25 @@ begin
     -- I2C bus #1
     --------------------------------------------------------------------
 
-    i2c1_sda_t <= not i2c1_sda_t_n;
+    -- i2c1_sda_t <= not i2c1_sda_t_n;
 
-    IOBUF_sda_inst1 : IOBUF
-	generic map (
-	    IOSTANDARD => "LVCMOS33",
-	    DRIVE => 4 )
-	port map (
-	    I => i2c1_sda_o, O => i2c1_sda_i,
-	    T => i2c1_sda_t, IO => i2c1_sda );
+    -- IOBUF_sda_inst1 : IOBUF
+	-- generic map (
+	--     IOSTANDARD => "LVCMOS33",
+	--     DRIVE => 4 )
+	-- port map (
+	--     I => i2c1_sda_o, O => i2c1_sda_i,
+	--     T => i2c1_sda_t, IO => i2c1_sda );
 
-    i2c1_scl_t <= not i2c1_scl_t_n;
+    -- i2c1_scl_t <= not i2c1_scl_t_n;
 
-    IOBUF_scl_inst1 : IOBUF
-	generic map (
-	    IOSTANDARD => "LVCMOS33",
-	    DRIVE => 4 )
-	port map (
-	    I => i2c1_scl_o, O => i2c1_scl_i,
-	    T => i2c1_scl_t, IO => i2c1_scl );
+    -- IOBUF_scl_inst1 : IOBUF
+	-- generic map (
+	--     IOSTANDARD => "LVCMOS33",
+	--     DRIVE => 4 )
+	-- port map (
+	--     I => i2c1_scl_o, O => i2c1_scl_i,
+	--     T => i2c1_scl_t, IO => i2c1_scl );
 
     --------------------------------------------------------------------
     -- CMV PLL/LVDS MMCM
@@ -843,9 +844,9 @@ begin
 	    oreg => reg_oreg,
 	    ireg => reg_ireg );
 
-    reg_ireg(0) <= par_match(31 downto 0);
-    reg_ireg(1) <= par_mismatch(31 downto 0);
-    reg_ireg(2) <= waddr_in(31 downto 0);
+    reg_ireg(0) <= par_match(15 downto 0);
+    reg_ireg(1) <= par_mismatch(15 downto 0);
+    reg_ireg(2) <= waddr_in(15 downto 0);
     reg_ireg(3) <= x"0" & writer_inactive &			-- 8bit
 		   "00" & fifo_data_wrerr & fifo_data_rderr &	-- 4bit
 		   fifo_data_full & fifo_data_high &		-- 2bit
@@ -1000,69 +1001,56 @@ begin
     -- Data FIFO
     --------------------------------------------------------------------
 
-    FIFO_data_inst : FIFO_DUALCLOCK_MACRO
-	generic map (
-	    DEVICE => "7SERIES",
-	    DATA_WIDTH => DATA_WIDTH,
-	    ALMOST_FULL_OFFSET => x"020",
-	    ALMOST_EMPTY_OFFSET => x"020",
-	    FIFO_SIZE => "36Kb",
-	    FIRST_WORD_FALL_THROUGH => TRUE )
-	port map (
-	    DI => fifo_data_in,
-	    WRCLK => fifo_data_wclk,
-	    WREN => fifo_data_wen,
-	    FULL => fifo_data_full,
-	    ALMOSTFULL => fifo_data_high,
-	    WRERR => fifo_data_wrerr,
-	    WRCOUNT => fifo_data_wrcount,
-	    --
-	    DO => fifo_data_out,
-	    RDCLK => fifo_data_rclk,
-	    RDEN => fifo_data_ren,
-	    EMPTY => fifo_data_empty,
-	    ALMOSTEMPTY => fifo_data_low,
-	    RDERR => fifo_data_rderr,
-	    RDCOUNT => fifo_data_rdcount,
-	    --
-	    RST => fifo_data_rst );
+    -- FIFO_data_inst : FIFO_DUALCLOCK_MACRO
+	-- generic map (
+	--     DEVICE => "7SERIES",
+	--     DATA_WIDTH => DATA_WIDTH,
+	--     ALMOST_FULL_OFFSET => x"020",
+	--     ALMOST_EMPTY_OFFSET => x"020",
+	--     FIFO_SIZE => "36Kb",
+	--     FIRST_WORD_FALL_THROUGH => TRUE )
+	-- port map (
+	--     DI => fifo_data_in,
+	--     WRCLK => fifo_data_wclk,
+	--     WREN => fifo_data_wen,
+	--     FULL => fifo_data_full,
+	--     ALMOSTFULL => fifo_data_high,
+	--     WRERR => fifo_data_wrerr,
+	--     WRCOUNT => fifo_data_wrcount,
+	--     --
+	--     DO => fifo_data_out,
+	--     RDCLK => fifo_data_rclk,
+	--     RDEN => fifo_data_ren,
+	--     EMPTY => fifo_data_empty,
+	--     ALMOSTEMPTY => fifo_data_low,
+	--     RDERR => fifo_data_rderr,
+	--     RDCOUNT => fifo_data_rdcount,
+	--     --
+	--     RST => fifo_data_rst );
 
-    fifo_reset_inst : entity work.fifo_reset
-	port map (
-	    rclk => fifo_data_rclk,
-	    wclk => fifo_data_wclk,
-	    reset => fifo_data_reset,
-	    --
-	    fifo_rst => fifo_data_rst,
-	    fifo_rrdy => fifo_data_rrdy,
-	    fifo_wrdy => fifo_data_wrdy );
+    -- fifo_reset_inst : entity work.fifo_reset
+	-- port map (
+	--     rclk => fifo_data_rclk,
+	--     wclk => fifo_data_wclk,
+	--     reset => fifo_data_reset,
+	--     --
+	--     fifo_rst => fifo_data_rst,
+	--     fifo_rrdy => fifo_data_rrdy,
+	--     fifo_wrdy => fifo_data_wrdy );
 
 
-    pixel_remap_even_inst : entity work.pixel_remap
-	  generic map (
-	    NB_LANES => CHANNELS/2 )
-	  port map (
-	    clk      => serdes_clkdiv,
-	    --
-	    dv_par   => par_valid,
-	    ctrl_in  => par_data(32),
-	    par_din  => par_data(15 downto 0),
-	    --
-	    ctrl_out => remap_ctrl,
-	    par_dout => remap_data(15 downto 0) );
-
-    pixel_remap_odd_inst : entity work.pixel_remap
-	  generic map (
-	    NB_LANES => CHANNELS/2 )
-	  port map (
-	    clk      => serdes_clkdiv,
-	    --
-	    dv_par   => par_valid,
-	    ctrl_in  => par_data(32),
-	    par_din  => par_data(31 downto 16),
-	    --
-	    ctrl_out => open  ,
-	    par_dout => remap_data(31 downto 16) );
+    -- pixel_remap_even_inst : entity work.pixel_remap
+	--   generic map (
+	--     NB_LANES => CHANNELS/2 )
+	--   port map (
+	--     clk      => serdes_clkdiv,
+	--     --
+	--     dv_par   => par_valid,
+	--     ctrl_in  => par_data(16),
+	--     par_din  => par_data(15 downto 0),
+	--     --
+	--     ctrl_out => remap_ctrl,
+	--     par_dout => remap_data(15 downto 0) );
 
     valid_proc : process (serdes_clkdiv)
     begin
@@ -1076,19 +1064,19 @@ begin
     end process;
 
 
-    fifo_chop_inst : entity work.fifo_chop
-	port map (
-	    par_clk => serdes_clk,
-	    par_enable => par_enable,
-	    par_data => remap_data(31 downto 0),
-	    --
-	    par_ctrl => remap_ctrl,
-	    --
-	    fifo_clk => fifo_data_wclk,
-	    fifo_enable => data_wen,
-	    fifo_data => data_in,
-	    --
-	    fifo_ctrl => fifo_ctrl );
+    -- fifo_chop_inst : entity work.fifo_chop
+	-- port map (
+	--     par_clk => serdes_clk,
+	--     par_enable => par_enable,
+	--     par_data => remap_data(15 downto 0),
+	--     --
+	--     par_ctrl => remap_ctrl,
+	--     --
+	--     fifo_clk => fifo_data_wclk,
+	--     fifo_enable => data_wen,
+	--     fifo_data => data_in,
+	--     --
+	--     fifo_ctrl => fifo_ctrl );
 
     -- lut_dval_in <= fifo_ctrl(0);
     -- lut_lval_in <= fifo_ctrl(0);
@@ -1169,6 +1157,7 @@ begin
     cmv_frame_req <= btn_ovr(0);
     cmv_t_exp1 <= btn_ovr(1);
     cmv_t_exp2 <= btn_ovr(2);
+    cmv_sys_res_n <= not btn_ovr(4);
 
     --------------------------------------------------------------------
     -- LED Status output
@@ -1182,7 +1171,7 @@ begin
 	generic map (
 	    STAGES => 28 )
 	port map (
-	    clk_in => cmv_lvds_clk,
+	    clk_in => cmv_outclk,
 	    clk_out => led_out(6) );
 
     div_lvds_inst1 : entity work.async_div
@@ -1213,119 +1202,5 @@ begin
 	    USRCCLKTS => '0',		-- 1-bit input: User CCLK 3-state enable input
 	    USRDONEO => '0',		-- 1-bit input: User DONE pin output control
 	    USRDONETS => led_done );	-- 1-bit input: User DONE 3-state enable output
-
-    --------------------------------------------------------------------
-    -- PMOD Debug
-    --------------------------------------------------------------------
-
-    pmod_clk <= clk_100;
-
-    pmod_dbg_jd_inst : entity work.pmod_debug
-	generic map (
-	    PRESCALE => 12 )
-	port map (
-	    clk => pmod_clk,
-	    --
-	    value => pmod_v0,
-	    --
-	    jxm => pmod_jdm,
-	    jxa => pmod_jda );
-
-    pmod_dbg_jc_inst : entity work.pmod_debug
-	generic map (
-	    PRESCALE => 12 )
-	port map (
-	    clk => pmod_clk,
-	    --
-	    value => pmod_v1,
-	    --
-	    jxm => pmod_jcm,
-	    jxa => pmod_jca );
-
-    pmod_proc : process (
-	pmod_clk, swi_ovr,
-	par_match, par_mismatch, par_data,
-	m_axi0_wo, m_axi0_wi, m_axi0_ro, m_axi0_ri )
-
-    begin
-	case swi_ovr(3 downto 0) is
-	    when "0000" =>
-		pmod_v0 <= par_match(0)	 & par_mismatch(0)  & "00" & par_data(0) &
-			   par_match(1)	 & par_mismatch(1)  & "00" & par_data(1) &
-			   par_match(2)	 & par_mismatch(2)  & "00" & par_data(2) &
-			   par_match(3)	 & par_mismatch(3)  & "00" & par_data(3);
-
-		pmod_v1 <= par_match(4)	 & par_mismatch(4)  & "00" & par_data(4) &
-			   par_match(5)	 & par_mismatch(5)  & "00" & par_data(5) &
-			   par_match(6)	 & par_mismatch(6)  & "00" & par_data(6) &
-			   par_match(7)	 & par_mismatch(7)  & "00" & par_data(7);
-
-	    when "0001" =>
-		pmod_v0 <= par_match(8)	 & par_mismatch(8)  & "00" & par_data(8) &
-			   par_match(9)	 & par_mismatch(9)  & "00" & par_data(9) &
-			   par_match(10) & par_mismatch(10) & "00" & par_data(10) &
-			   par_match(11) & par_mismatch(11) & "00" & par_data(11);
-
-		pmod_v1 <= par_match(12) & par_mismatch(12) & "00" & par_data(12) &
-			   par_match(13) & par_mismatch(13) & "00" & par_data(13) &
-			   par_match(14) & par_mismatch(14) & "00" & par_data(14) &
-			   par_match(15) & par_mismatch(15) & "00" & par_data(15);
-
-	    when "0010" =>
-		pmod_v0 <= par_match(16) & par_mismatch(16) & "00" & par_data(16) &
-			   par_match(17) & par_mismatch(17) & "00" & par_data(17) &
-			   par_match(18) & par_mismatch(18) & "00" & par_data(18) &
-			   par_match(19) & par_mismatch(19) & "00" & par_data(19);
-
-		pmod_v1 <= par_match(20) & par_mismatch(20) & "00" & par_data(20) &
-			   par_match(21) & par_mismatch(21) & "00" & par_data(21) &
-			   par_match(22) & par_mismatch(22) & "00" & par_data(22) &
-			   par_match(23) & par_mismatch(23) & "00" & par_data(23);
-
-	    when "0011" =>
-		pmod_v0 <= par_match(24) & par_mismatch(24) & "00" & par_data(24) &
-			   par_match(25) & par_mismatch(25) & "00" & par_data(25) &
-			   par_match(26) & par_mismatch(26) & "00" & par_data(26) &
-			   par_match(27) & par_mismatch(27) & "00" & par_data(27);
-
-		pmod_v1 <= par_match(28) & par_mismatch(28) & "00" & par_data(28) &
-			   par_match(29) & par_mismatch(29) & "00" & par_data(29) &
-			   par_match(30) & par_mismatch(30) & "00" & par_data(30) &
-			   par_match(31) & par_mismatch(31) & "00" & par_data(31);
-
-	    when "0100" =>
-		pmod_v0 <= x"000000000000" &
-			   par_match(32) & par_mismatch(32) & "00" & par_data(32);
-
-		pmod_v1 <= par_match(31 downto 0) & par_mismatch(31 downto 0);
-
-
-	    when "1000" =>
-		pmod_v0 <= wdata_enable & '0' & wdata_empty & '0' &	-- 4bit
-			   fifo_data_full & fifo_data_high &		-- 2bit
-			   fifo_data_low & fifo_data_empty &		-- 2bit
-			   fifo_data_wrdy & fifo_data_wrerr &		-- 2bit
-			   fifo_data_rrdy & fifo_data_rderr &		-- 2bit
-			   "000" & fifo_data_rst &			-- 4bit
-			   writer_enable & writer_inactive &		-- 8bit
-			   writer_active & writer_unconf &		-- 8bit
-			   waddr_in;
-
-		pmod_v1 <= wdata_in;
-
-	    when "1001" =>
-		pmod_v0 <= waddr_enable & '0' & waddr_empty & '0' &	-- 4bit
-			   "000" & waddr_reset &			-- 4bit
-			   x"000000" &
-			   waddr_in;
-		pmod_v1(63 downto 32) <= waddr_inc;
-		pmod_v1(31 downto 0) <= waddr_max;
-
-	    when others =>
-		pmod_v0 <= (others => '0');
-
-		pmod_v1 <= (others => '0');
-	end case;
-    end process;
 
 end RTL;

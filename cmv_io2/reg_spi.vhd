@@ -81,11 +81,11 @@ architecture RTL of reg_spi is
     alias spi_addr : std_logic_vector (6 downto 0)
 	is reg_ab_out(22 downto 16);
 
-    alias spi_din : std_logic_vector (15 downto 0)
-	is reg_ab_out(15 downto 0);
+    alias spi_din : std_logic_vector (7 downto 0)
+	is reg_ab_out(7 downto 0);
 
-    alias spi_dout : std_logic_vector (15 downto 0)
-	is reg_ba_in(15 downto 0);
+    alias spi_dout : std_logic_vector (7 downto 0)
+	is reg_ba_in(7 downto 0);
 
 begin
 

@@ -22,7 +22,7 @@ read_vhdl ../reg_spi.vhd
 read_vhdl ../reg_delay.vhd
 read_vhdl ../reg_lut5.vhd
 read_vhdl ../reg_file.vhd
-read_vhdl ../pmod_debug.vhd
+#read_vhdl ../pmod_debug.vhd
 read_vhdl ../lvds_pll.vhd
 read_vhdl ../cfg_lut5.vhd
 read_vhdl ../cmv_pll.vhd
@@ -46,7 +46,7 @@ read_vhdl ../reduce_pkg.vhd
 read_vhdl ../fifo_pkg.vhd
 read_vhdl ../top.vhd
 
-read_xdc ../pmod_debug.xdc
+#read_xdc ../pmod_debug.xdc
 read_xdc ../cmv.xdc
 read_xdc ../top.xdc
 
@@ -146,10 +146,10 @@ report_timing -no_header -path_type summary -max_paths 1000 -slack_lesser_than 0
 # highlight_objects -rgb {128 128 128} [get_cells]
 # highlight_objects -rgb {64 64 64} [get_nets]
 
-highlight_objects -rgb {128 0 255}	[get_cells reg_delay_inst/*]
-highlight_objects -rgb {255 0 0}	[get_cells ser_to_par_inst/*]
-highlight_objects -rgb {255 64 0}	[get_cells par_match_inst/*]
-highlight_objects -rgb {255 128 0}	[get_cells fifo_chop_inst/*]
+#highlight_objects -rgb {128 0 255}	[get_cells reg_delay_inst/*]
+#highlight_objects -rgb {255 0 0}	[get_cells ser_to_par_inst/*]
+#highlight_objects -rgb {255 64 0}	[get_cells par_match_inst/*]
+#highlight_objects -rgb {255 128 0}	[get_cells fifo_chop_inst/*]
 
 source ../vivado_program.tcl
 # start_gui

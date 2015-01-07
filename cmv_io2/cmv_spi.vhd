@@ -28,9 +28,9 @@ entity cmv_spi is
 	--
 	spi_write : in std_logic;
 	spi_addr : in std_logic_vector (6 downto 0);
-	spi_din : in std_logic_vector (15 downto 0);
+	spi_din : in std_logic_vector (7 downto 0);
 	--
-	spi_dout : out std_logic_vector (15 downto 0);
+	spi_dout : out std_logic_vector (7 downto 0);
 	spi_latch : out std_logic;
 	--
 	spi_clk : out std_logic;
@@ -49,10 +49,10 @@ architecture RTL of cmv_spi is
     signal enable_b : std_logic := '0';
     signal enable : std_logic := '0';
 
-    signal data_shift : std_logic_vector (22 downto 0)
+    signal data_shift : std_logic_vector (14 downto 0)
 	:= (others => '0');
 
-    signal ctrl_shift : std_logic_vector (24 downto 0)
+    signal ctrl_shift : std_logic_vector (16 downto 0)
 	:= (others => '0');
 
 begin
@@ -106,8 +106,8 @@ begin
     begin
 	if rising_edge(spi_clk_in) then
 	    if spi_action = '1' then			-- sync load
-		data_shift(15 downto 0) <= spi_din;
-		data_shift(22 downto 16) <= spi_addr;
+		data_shift(7 downto 0) <= spi_din;
+		data_shift(data_shift'high downto spi_din'high + 1) <= spi_addr;
 		-- data_shift(23) <= spi_write;
 
 	    elsif enable = '1' then			-- shift in
