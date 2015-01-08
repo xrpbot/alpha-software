@@ -42,7 +42,7 @@ static uint32_t cmv_size = 0x00400000;
 
 static char *dev_mem = "/dev/mem";
 
-static uint32_t pattern = 85;
+static uint32_t pattern = 0x155;
 
 static bool opt_all = false;
 
@@ -153,6 +153,12 @@ int	lsb_set(uint32_t val)
 		return b;
 
 	return -1;
+}
+
+void cmv_set_pattern(uint32_t p) 
+{
+	set_cmv_reg(78, p & 0xFF);
+	set_cmv_reg(79, p >> 8);
 }
 
 
@@ -323,7 +329,7 @@ int	main(int argc, char *argv[])
 	uint32_t dly_out = 0x1F;
 
 	set_fil_reg(FIL_REG_PATTERN, pattern);
-	set_cmv_reg(78, pattern);
+	cmv_set_pattern(pattern);
 
 	for (int o=0; o<32; o++) {
 	    uint32_t bmin = 31;
@@ -359,7 +365,7 @@ int	main(int argc, char *argv[])
 	printf("adjusting input delays ...\n");
 
 	set_fil_reg(FIL_REG_PATTERN, pattern);
-	set_cmv_reg(78, pattern);
+	cmv_set_pattern(pattern);
 
 	uint32_t dly_in[17] = { 0 };
 
@@ -415,8 +421,8 @@ int	main(int argc, char *argv[])
 // TODO: upper 4 bits
 	    for (int p=0; p<(1<<8); p++) {
 		set_fil_reg(FIL_REG_PATTERN, p);
-		set_cmv_reg(78, p);
-		
+		cmv_set_pattern(p);
+
 		usleep(100);
 		check &= get_fil_reg(FIL_REG_MATCH);
 		check &= ~get_fil_reg(FIL_REG_MISMATCH);
@@ -426,7 +432,7 @@ int	main(int argc, char *argv[])
 
 	    for (int b=0; b<8; b++) {
 		set_fil_reg(FIL_REG_PATTERN, (1 << b));
-		set_cmv_reg(78, (1 << b));
+		cmv_set_pattern((1 << b));
 	
 		usleep(50000);
 		check &= get_fil_reg(FIL_REG_MATCH);
@@ -435,7 +441,7 @@ int	main(int argc, char *argv[])
 
 	    for (int b=0; b<8; b++) {
 		set_fil_reg(FIL_REG_PATTERN, ~(1 << b));
-		set_cmv_reg(78, ~(1 << b));
+		cmv_set_pattern(~(1 << b));
 	
 		usleep(50000);
 		check &= get_fil_reg(FIL_REG_MATCH);
@@ -447,7 +453,7 @@ int	main(int argc, char *argv[])
 
 	set_fil_reg(FIL_REG_OVERRIDE, 0x00000000);	// unlock override
 	set_fil_reg(FIL_REG_PATTERN, pattern);
-	set_cmv_reg(78, pattern);
+	cmv_set_pattern(pattern);
 
 	exit((err_flag)?1:0);
 }
