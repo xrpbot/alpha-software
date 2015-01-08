@@ -22,6 +22,9 @@ use unisim.vcomponents.ALL;
 
 
 entity cmv_serdes is
+	generic (
+		BITMODE : natural := 12
+	);
     port (
 	serdes_clk	: in  std_logic;
 	serdes_clkdiv	: in  std_logic;
@@ -43,15 +46,15 @@ architecture RTL of cmv_serdes is
 
     signal bitslip_occ : std_logic := '0';
 
-    signal data : std_logic_vector (5 downto 0);
-    signal data_out : std_logic_vector (11 downto 0);
+    signal data : std_logic_vector (BITMODE/2-1 downto 0);
+    signal data_out : std_logic_vector (BITMODE-1 downto 0);
 
 begin
 
     ISERDES_master_inst : ISERDESE2
 	generic map (
 	    DATA_RATE		=> "SDR",
-	    DATA_WIDTH		=> 6,
+	    DATA_WIDTH		=> BITMODE/2,
 	    INTERFACE_TYPE	=> "NETWORKING",
 	    IOBDELAY		=> "IFD",
 	    OFB_USED		=> "FALSE",
@@ -62,12 +65,12 @@ begin
 	    IS_CLKDIVP_INVERTED	=> '1',
 	    NUM_CE		=> 1 )
 	port map (
-	    Q1		=> data(5),
-	    Q2		=> data(4),
-	    Q3		=> data(3),
-	    Q4		=> data(2),
-	    Q5		=> data(1),
-	    Q6		=> data(0),
+	    Q1		=> data(4),
+	    Q2		=> data(3),
+	    Q3		=> data(2),
+	    Q4		=> data(1),
+	    Q5		=> data(0),
+	    --Q6		=> data(0),
 	    BITSLIP	=> bitslip_occ,
 	    CE1		=> '1',
 	    CE2		=> '1',
@@ -91,14 +94,16 @@ begin
     begin
 	if rising_edge(serdes_clkdiv) then
 	    if serdes_phase = '1' then
-		data_out(11 downto 6) <= data;
+		data_out(BITMODE-1 downto BITMODE/2) <= data;
 	    else
-		data_out(5 downto 0) <= data;
+		data_out(BITMODE/2-1 downto 0) <= data;
 	    end if;
 	end if;
     end process;
 
-    par_data <= data_out;
+    par_data <= data_out & "0000" when BITMODE = 8 else 
+    			data_out & "00"   when BITMODE = 10 else
+    			data_out;
 
     bitslip_proc : process (serdes_clkdiv, bitslip)
 	variable shift_v : std_logic_vector (1 downto 0) := "10";

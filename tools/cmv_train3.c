@@ -42,7 +42,7 @@ static uint32_t cmv_size = 0x00400000;
 
 static char *dev_mem = "/dev/mem";
 
-static uint32_t pattern = 0xA95;
+static uint32_t pattern = 85;
 
 static bool opt_all = false;
 
@@ -163,11 +163,12 @@ uint32_t cmv_check(unsigned chan)
 	for (int d=0; d<32; d++) {
 	    set_del_reg(chan, d);
 
-	    // usleep(100);
 	    val = get_del_reg(chan);
 	
-	    if ((val & 0x30000000) == 0x20000000)
-		ret |= (1 << d);
+	    if ((val & 0x30000000) == 0x20000000) {
+	    	ret |= (1 << d);
+	    	printf("c: \t%d d:\t%d ok\n", chan, d);
+	    }
 	}
 
 	return ret;
@@ -299,24 +300,22 @@ int	main(int argc, char *argv[])
 	for (int w=0; w<2; w++) {
 	    bool done = false;
 
-	    for (int s=0; s<5; s++) {			/* bitslip	*/
+	    for (int s=0; s<6; s++) {			/* bitslip	*/
 		for (int d=0; d<32; d++) {		/* delay	*/
-		    set_del_reg(16, d);
+		    set_del_reg(2, d);
 		    printf("          w: %d s: %d d: %d\n", w, s, d);
-		    if (cmv_good(16)) {			/* first match	*/
+		    if (cmv_good(2)) {			/* first match	*/
 				done = true;
 				printf("match for w: %d s: %d d: %d\n", w, s, d);
 			}
 		    if (done) break;
 		}
 		if (done) break;
-		cmv_bitslip(16);
+		cmv_bitslip(2);
 	    }
 	    if (done) break;
 	    cmv_bitslip(17);
 	}
-
-	exit(0);
 
 	printf("adjusting out delay ...\n");
 
@@ -326,11 +325,11 @@ int	main(int argc, char *argv[])
 	set_fil_reg(FIL_REG_PATTERN, pattern);
 	set_cmv_reg(89, pattern);
 
-	for (int o=0; o<32; o++) {
-	    uint32_t bmin = 31;
-	    set_del_reg(33, o);
+	for (int o=0; o<16; o++) {
+	    uint32_t bmin = 15;
+	    set_del_reg(17, o);
 
-	    for (int c=0; c<33; c++) {
+	    for (int c=0; c<16; c++) {
 		uint32_t val, num, bnum = 0;
 		
 		for (int s=0; s<6; s++) {		/* bitslip	*/
@@ -353,6 +352,8 @@ int	main(int argc, char *argv[])
 	    }
 	    printf("[%02d] = %02d\n", o, bmin);
 	}
+
+	exit(0);
 
 	printf("found maximum at %02d\n", dly_out);
 	set_del_reg(33, dly_out);

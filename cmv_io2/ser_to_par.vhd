@@ -76,6 +76,9 @@ begin
 
     GEN_serdes : for I in CHANNELS - 1 downto 0 generate
 	serdes_inst : entity work.cmv_serdes
+		generic map (
+			BITMODE => 10
+		)
 	    port map (
 		serdes_clk    => serdes_clk,
 		serdes_clkdiv => serdes_clkdiv,
