@@ -267,6 +267,7 @@ int	main(int argc, char *argv[])
 	    (long unsigned)cmv_base, (long unsigned)cmv_size,
 	    (long unsigned)cmv_addr);
 
+#if 0
 	void *sysr = mmap((void *)sys_addr, sys_size,
 	    PROT_READ | PROT_WRITE, MAP_SHARED,
 	    fd, sys_base);
@@ -283,7 +284,7 @@ int	main(int argc, char *argv[])
 	    "mapped 0x%08lX+0x%08lX to 0x%08lX.\n",
 	    (long unsigned)sys_base, (long unsigned)sys_size,
 	    (long unsigned)sys_addr);
-
+#endif
 
 	// uint32_t reset = get_sys_reg(144);
 	// set_sys_reg(144, reset & ~2);	/* serdes reset		*/
@@ -293,24 +294,29 @@ int	main(int argc, char *argv[])
 
 	printf("initial control adjustment ...\n");
 
-	set_del_reg(33, 0x10);
+	set_del_reg(17, 0x10);
 
 	for (int w=0; w<2; w++) {
 	    bool done = false;
 
-	    for (int s=0; s<6; s++) {			/* bitslip	*/
+	    for (int s=0; s<5; s++) {			/* bitslip	*/
 		for (int d=0; d<32; d++) {		/* delay	*/
-		    set_del_reg(32, d);
-		    if (cmv_good(32))			/* first match	*/
-			done = true;
+		    set_del_reg(16, d);
+		    printf("          w: %d s: %d d: %d\n", w, s, d);
+		    if (cmv_good(16)) {			/* first match	*/
+				done = true;
+				printf("match for w: %d s: %d d: %d\n", w, s, d);
+			}
 		    if (done) break;
 		}
 		if (done) break;
-		cmv_bitslip(32);
+		cmv_bitslip(16);
 	    }
 	    if (done) break;
-	    cmv_bitslip(33);
+	    cmv_bitslip(17);
 	}
+
+	exit(0);
 
 	printf("adjusting out delay ...\n");
 
