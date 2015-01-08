@@ -167,7 +167,7 @@ uint32_t cmv_check(unsigned chan)
 	
 	    if ((val & 0x30000000) == 0x20000000) {
 	    	ret |= (1 << d);
-	    	printf("c: \t%d d:\t%d ok\n", chan, d);
+	    	//printf("c: \t%d d:\t%d ok\n", chan, d);
 	    }
 	}
 
@@ -306,7 +306,7 @@ int	main(int argc, char *argv[])
 		    printf("          w: %d s: %d d: %d\n", w, s, d);
 		    if (cmv_good(2)) {			/* first match	*/
 				done = true;
-				printf("match for w: %d s: %d d: %d\n", w, s, d);
+				//printf("match for w: %d s: %d d: %d\n", w, s, d);
 			}
 		    if (done) break;
 		}
@@ -323,10 +323,10 @@ int	main(int argc, char *argv[])
 	uint32_t dly_out = 0x1F;
 
 	set_fil_reg(FIL_REG_PATTERN, pattern);
-	set_cmv_reg(89, pattern);
+	set_cmv_reg(78, pattern);
 
-	for (int o=0; o<16; o++) {
-	    uint32_t bmin = 15;
+	for (int o=0; o<32; o++) {
+	    uint32_t bmin = 31;
 	    set_del_reg(17, o);
 
 	    for (int c=0; c<16; c++) {
@@ -353,19 +353,17 @@ int	main(int argc, char *argv[])
 	    printf("[%02d] = %02d\n", o, bmin);
 	}
 
-	exit(0);
-
 	printf("found maximum at %02d\n", dly_out);
-	set_del_reg(33, dly_out);
+	set_del_reg(17, dly_out);
 
 	printf("adjusting input delays ...\n");
 
 	set_fil_reg(FIL_REG_PATTERN, pattern);
-	set_cmv_reg(89, pattern);
+	set_cmv_reg(78, pattern);
 
-	uint32_t dly_in[33] = { 0 };
+	uint32_t dly_in[17] = { 0 };
 
-	for (int c=0; c<33; c++) {
+	for (int c=0; c<17; c++) {
 	    uint32_t bslip = 0;				/* best slip	*/
 	    uint32_t bsnum = 0;				/* best value	*/
 
@@ -414,9 +412,10 @@ int	main(int argc, char *argv[])
 	if (opt_all) {
 	    printf("checking all bit pattern ...\n");
 
-	    for (int p=0; p<(1<<12); p++) {
+// TODO: upper 4 bits
+	    for (int p=0; p<(1<<8); p++) {
 		set_fil_reg(FIL_REG_PATTERN, p);
-		set_cmv_reg(89, p);
+		set_cmv_reg(78, p);
 		
 		usleep(100);
 		check &= get_fil_reg(FIL_REG_MATCH);
@@ -425,18 +424,18 @@ int	main(int argc, char *argv[])
 	} else {
 	    printf("checking bit pattern ...\n");
 
-	    for (int b=0; b<12; b++) {
+	    for (int b=0; b<8; b++) {
 		set_fil_reg(FIL_REG_PATTERN, (1 << b));
-		set_cmv_reg(89, (1 << b));
+		set_cmv_reg(78, (1 << b));
 	
 		usleep(50000);
 		check &= get_fil_reg(FIL_REG_MATCH);
 		check &= ~get_fil_reg(FIL_REG_MISMATCH);
 	    }
 
-	    for (int b=0; b<12; b++) {
+	    for (int b=0; b<8; b++) {
 		set_fil_reg(FIL_REG_PATTERN, ~(1 << b));
-		set_cmv_reg(89, ~(1 << b));
+		set_cmv_reg(78, ~(1 << b));
 	
 		usleep(50000);
 		check &= get_fil_reg(FIL_REG_MATCH);
@@ -448,7 +447,7 @@ int	main(int argc, char *argv[])
 
 	set_fil_reg(FIL_REG_OVERRIDE, 0x00000000);	// unlock override
 	set_fil_reg(FIL_REG_PATTERN, pattern);
-	set_cmv_reg(89, pattern);
+	set_cmv_reg(78, pattern);
 
 	exit((err_flag)?1:0);
 }
