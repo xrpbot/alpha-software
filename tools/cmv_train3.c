@@ -42,7 +42,8 @@ static uint32_t cmv_size = 0x00400000;
 
 static char *dev_mem = "/dev/mem";
 
-static uint32_t pattern = 0x155;
+static uint32_t pattern = 0x55;
+static int32_t delay_param = -1;
 
 static bool opt_all = false;
 
@@ -157,6 +158,7 @@ int	lsb_set(uint32_t val)
 
 void cmv_set_pattern(uint32_t p) 
 {
+	set_fil_reg(FIL_REG_PATTERN, ((p << 2) & 0xFFF));
 	set_cmv_reg(78, p & 0xFF);
 	set_cmv_reg(79, p >> 8);
 }
@@ -201,7 +203,7 @@ int	main(int argc, char *argv[])
 	int c, err_flag = 0;
 
 	cmd_name = argv[0];
-	while ((c = getopt(argc, argv, "haB:S:A:P:")) != EOF) {
+	while ((c = getopt(argc, argv, "haB:S:A:P:D:")) != EOF) {
 	    switch (c) {
 	    case 'h':
 		fprintf(stderr,
@@ -213,6 +215,7 @@ int	main(int argc, char *argv[])
 		    "-S <val>  memory mapping size\n"
 		    "-A <val>  memory mapping address\n"
 		    "-P <val>  training pattern\n"
+		    "-D <val>  delay\n"
 		    , cmd_name);
 		exit(0);
 		break;
@@ -230,6 +233,9 @@ int	main(int argc, char *argv[])
 		break;
 	    case 'P':
 		pattern = argtoll(optarg, NULL, NULL) & 0xFFF;
+		break;
+		case 'D':
+		delay_param = argtoll(optarg, NULL, NULL) & 0xFF;
 		break;
 	    case '?':
 	    default:
@@ -323,48 +329,52 @@ int	main(int argc, char *argv[])
 	    cmv_bitslip(17);
 	}
 
-	printf("adjusting out delay ...\n");
+	if (delay_param < 0)
+	{
+		printf("adjusting out delay ...\n");
 
-	uint32_t dly_bmin = 0;
-	uint32_t dly_out = 0x1F;
+		uint32_t dly_bmin = 0;
+		uint32_t dly_out = 0x1F;
 
-	set_fil_reg(FIL_REG_PATTERN, pattern);
-	cmv_set_pattern(pattern);
+		cmv_set_pattern(pattern);
 
-	for (int o=0; o<32; o++) {
-	    uint32_t bmin = 31;
-	    set_del_reg(17, o);
+		for (int o=0; o<32; o++) {
+		    uint32_t bmin = 31;
+		    set_del_reg(17, o);
 
-	    for (int c=0; c<16; c++) {
-		uint32_t val, num, bnum = 0;
-		
-		for (int s=0; s<6; s++) {		/* bitslip	*/
-		    val = cmv_check(c);			/* check delay	*/
-		    num = num_bits(val);
-		
-		    if (num > bnum)			/* keep max	*/
-			bnum = num;
+		    for (int c=0; c<16; c++) {
+			uint32_t val, num, bnum = 0;
+			
+			for (int s=0; s<6; s++) {		/* bitslip	*/
+			    val = cmv_check(c);			/* check delay	*/
+			    num = num_bits(val);
+			
+			    if (num > bnum)			/* keep max	*/
+				bnum = num;
 
-		    cmv_bitslip(c);
+			    cmv_bitslip(c);
+			}
+
+			if (bnum < bmin)			/* keep min	*/
+			    bmin = bnum;
+		    }
+
+		    if (bmin > dly_bmin) {			/* keep best	*/
+			dly_out = o;
+			dly_bmin = bmin;
+		    }
+		    printf("[%02d] = %02d\n", o, bmin);
 		}
 
-		if (bnum < bmin)			/* keep min	*/
-		    bmin = bnum;
-	    }
-
-	    if (bmin > dly_bmin) {			/* keep best	*/
-		dly_out = o;
-		dly_bmin = bmin;
-	    }
-	    printf("[%02d] = %02d\n", o, bmin);
+		printf("found maximum at %02d\n", dly_out);
+		set_del_reg(17, dly_out);
+	} else {
+		printf("using input delay: %02d\n", delay_param);
+		set_del_reg(17, delay_param);
 	}
-
-	printf("found maximum at %02d\n", dly_out);
-	set_del_reg(17, dly_out);
 
 	printf("adjusting input delays ...\n");
 
-	set_fil_reg(FIL_REG_PATTERN, pattern);
 	cmv_set_pattern(pattern);
 
 	uint32_t dly_in[17] = { 0 };
@@ -412,15 +422,12 @@ int	main(int argc, char *argv[])
 
 	set_fil_reg(FIL_REG_OVERRIDE, 0x00FF0000);	// debug override
 
-
 	uint32_t check = 0xFFFFFFFF;
 
 	if (opt_all) {
 	    printf("checking all bit pattern ...\n");
 
-// TODO: upper 4 bits
-	    for (int p=0; p<(1<<8); p++) {
-		set_fil_reg(FIL_REG_PATTERN, p);
+	    for (int p=0; p<(1<<12); p++) {
 		cmv_set_pattern(p);
 
 		usleep(100);
@@ -430,8 +437,7 @@ int	main(int argc, char *argv[])
 	} else {
 	    printf("checking bit pattern ...\n");
 
-	    for (int b=0; b<8; b++) {
-		set_fil_reg(FIL_REG_PATTERN, (1 << b));
+	    for (int b=0; b<12; b++) {
 		cmv_set_pattern((1 << b));
 	
 		usleep(50000);
@@ -439,8 +445,7 @@ int	main(int argc, char *argv[])
 		check &= ~get_fil_reg(FIL_REG_MISMATCH);
 	    }
 
-	    for (int b=0; b<8; b++) {
-		set_fil_reg(FIL_REG_PATTERN, ~(1 << b));
+	    for (int b=0; b<12; b++) {
 		cmv_set_pattern(~(1 << b));
 	
 		usleep(50000);
@@ -452,7 +457,6 @@ int	main(int argc, char *argv[])
 	printf("result = 0x%08X\n", check);
 
 	set_fil_reg(FIL_REG_OVERRIDE, 0x00000000);	// unlock override
-	set_fil_reg(FIL_REG_PATTERN, pattern);
 	cmv_set_pattern(pattern);
 
 	exit((err_flag)?1:0);
