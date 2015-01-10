@@ -82,7 +82,10 @@ entity top is
 	--
 	btn : in std_logic_vector (4 downto 0);
 	swi : in std_logic_vector (7 downto 0);
-	led : out std_logic_vector (7 downto 0)
+	led : out std_logic_vector (7 downto 0);
+    --
+    pmod_ja : out std_logic_vector (7 downto 0)
+
     );
 
 end entity top;
@@ -1162,6 +1165,31 @@ begin
     --------------------------------------------------------------------
     -- LED Status output
     --------------------------------------------------------------------
+
+
+    par_data_debug_proc : process (serdes_clkdiv)
+    begin
+    if rising_edge(serdes_clkdiv) then
+        pmod_ja(7 downto 0) <= par_data(0)(9 downto 2);
+    end if;
+    end process;
+    
+    -- pmod_ja <=  par_data(0)(9 downto 2) when swi_ovr(7 downto 4) = "0000" else
+    --             par_data(1)(9 downto 2) when swi_ovr(7 downto 4) = "0001" else
+    --             par_data(2)(9 downto 2) when swi_ovr(7 downto 4) = "0010" else
+    --             par_data(3)(9 downto 2) when swi_ovr(7 downto 4) = "0011" else
+    --             par_data(4)(9 downto 2) when swi_ovr(7 downto 4) = "0100" else
+    --             par_data(5)(9 downto 2) when swi_ovr(7 downto 4) = "0101" else
+    --             par_data(6)(9 downto 2) when swi_ovr(7 downto 4) = "0110" else
+    --             par_data(7)(9 downto 2) when swi_ovr(7 downto 4) = "0111" else
+    --             par_data(8)(9 downto 2) when swi_ovr(7 downto 4) = "1000" else
+    --             par_data(9)(9 downto 2) when swi_ovr(7 downto 4) = "1001" else
+    --             par_data(10)(9 downto 2) when swi_ovr(7 downto 4) = "1010" else
+    --             par_data(11)(9 downto 2) when swi_ovr(7 downto 4) = "1011" else
+    --             par_data(12)(9 downto 2) when swi_ovr(7 downto 4) = "1100" else
+    --             par_data(13)(9 downto 2) when swi_ovr(7 downto 4) = "1101" else
+    --             par_data(14)(9 downto 2) when swi_ovr(7 downto 4) = "1110" else
+    --             par_data(15)(9 downto 2) when swi_ovr(7 downto 4) = "1111";
 
     led_out(0) <= cmv_pll_locked;
     led_out(1) <= lvds_pll_locked;

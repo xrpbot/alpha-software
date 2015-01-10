@@ -50,6 +50,19 @@ set_property PACKAGE_PIN R16 [get_ports {btn[4]}]
 
 set_property IOSTANDARD LVCMOS25 [get_ports {btn[*]}]
 
+set_property PACKAGE_PIN Y11   [get_ports {pmod_ja[0]}]
+set_property PACKAGE_PIN AA11  [get_ports {pmod_ja[1]}]
+set_property PACKAGE_PIN Y10   [get_ports {pmod_ja[2]}]
+set_property PACKAGE_PIN AA9   [get_ports {pmod_ja[3]}]
+set_property PACKAGE_PIN AB11  [get_ports {pmod_ja[4]}]
+set_property PACKAGE_PIN AB10  [get_ports {pmod_ja[5]}]
+set_property PACKAGE_PIN AB9   [get_ports {pmod_ja[6]}]
+set_property PACKAGE_PIN AA8   [get_ports {pmod_ja[7]}]
+   
+set_output_delay -clock [get_clocks pll_lvds_clk] -max 3.0 [get_ports {pmod_*}]
+set_output_delay -clock [get_clocks pll_lvds_clk] -min 3.0 [get_ports {pmod_*}]
+
+set_property IOSTANDARD LVCMOS33 [get_ports {pmod_*}]
 
 set_false_path -from [get_cells -hierarchical reg_ba_reg*]
 set_false_path -from [get_cells -hierarchical reg_ab_reg*]
@@ -73,7 +86,6 @@ set_false_path -to [get_pins reg_file_inst/rdata_*/D]
 
 # set_multicycle_path 2 -from [get_pins GEN_LVDS*/data_out*/C] -to [get_pins FIFO_ser_inst/*/D]
 # set_multicycle_path 1 -from [get_pins GEN_LVDS*/data_out*/C] -to [get_pins FIFO_ser_inst/*/D] -hold
-
 
 
 create_pblock pblock_writer
