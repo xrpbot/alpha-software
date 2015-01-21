@@ -58,9 +58,17 @@ set_property PACKAGE_PIN AB11  [get_ports {pmod_ja[4]}]
 set_property PACKAGE_PIN AB10  [get_ports {pmod_ja[5]}]
 set_property PACKAGE_PIN AB9   [get_ports {pmod_ja[6]}]
 set_property PACKAGE_PIN AA8   [get_ports {pmod_ja[7]}]
-   
-set_output_delay -clock [get_clocks pll_lvds_clk] -max 3.0 [get_ports {pmod_*}]
-set_output_delay -clock [get_clocks pll_lvds_clk] -min 3.0 [get_ports {pmod_*}]
+  
+set_false_path -to [get_ports {pmod_*}]
+set_false_path -from [get_ports {pmod_*}]
+
+# set_output_delay -reference_pin [get_ports {pmod_ja[0]}] [get_ports {pmod_ja[1]}]
+# set_output_delay -reference_pin [get_ports {pmod_ja[0]}] [get_ports {pmod_ja[2]}]
+# set_output_delay -reference_pin [get_ports {pmod_ja[0]}] [get_ports {pmod_ja[3]}]
+# set_output_delay -reference_pin [get_ports {pmod_ja[0]}] [get_ports {pmod_ja[4]}]
+# set_output_delay -reference_pin [get_ports {pmod_ja[0]}] [get_ports {pmod_ja[5]}]
+# set_output_delay -reference_pin [get_ports {pmod_ja[0]}] [get_ports {pmod_ja[6]}]
+# set_output_delay -reference_pin [get_ports {pmod_ja[0]}] [get_ports {pmod_ja[7]}]
 
 set_property IOSTANDARD LVCMOS33 [get_ports {pmod_*}]
 

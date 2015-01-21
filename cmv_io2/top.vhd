@@ -1167,13 +1167,15 @@ begin
     --------------------------------------------------------------------
 
 
-    par_data_debug_proc : process (serdes_clkdiv)
-    begin
-    if rising_edge(serdes_clkdiv) then
-        pmod_ja(7 downto 0) <= par_data(0)(9 downto 2);
-    end if;
-    end process;
-    
+    -- par_data_debug_proc : process (serdes_clk)
+    -- begin
+    -- if rising_edge(serdes_clk) then
+    --     pmod_ja(7 downto 0) <= par_data(0)(9 downto 2);
+    -- end if;
+    -- end process;
+
+    pmod_ja(0) <= idelay_out(0);
+
     -- pmod_ja <=  par_data(0)(9 downto 2) when swi_ovr(7 downto 4) = "0000" else
     --             par_data(1)(9 downto 2) when swi_ovr(7 downto 4) = "0001" else
     --             par_data(2)(9 downto 2) when swi_ovr(7 downto 4) = "0010" else
