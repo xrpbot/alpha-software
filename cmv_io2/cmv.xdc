@@ -35,6 +35,8 @@ set_property PACKAGE_PIN L19 [get_ports cmv_lvds_clk_n]
 set_property PACKAGE_PIN L18 [get_ports cmv_lvds_clk_p]
 
 set_property PACKAGE_PIN A22 [get_ports cmv_lvds_ctrl_n]
+set_property PACKAGE_PIN A21 [get_ports cmv_lvds_ctrl_p]
+
 set_property PACKAGE_PIN E18 [get_ports {cmv_lvds_data_n[0]}]
 set_property PACKAGE_PIN B15 [get_ports {cmv_lvds_data_n[1]}]
 set_property PACKAGE_PIN A19 [get_ports {cmv_lvds_data_n[2]}]
