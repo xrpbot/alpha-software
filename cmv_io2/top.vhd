@@ -1157,10 +1157,10 @@ begin
     -- Button input
     --------------------------------------------------------------------
 
-    cmv_frame_req <= btn_ovr(0);
-    cmv_t_exp1 <= btn_ovr(1);
-    cmv_t_exp2 <= btn_ovr(2);
-    cmv_sys_res_n <= not btn_ovr(4);
+    cmv_frame_req <= btn_ovr(0);        -- BTN C
+    cmv_t_exp1 <= btn_ovr(1);           -- BTN L
+    cmv_t_exp2 <= btn_ovr(2);           -- BTN R
+    cmv_sys_res_n <= not btn_ovr(4);    -- BTN D
 
     --------------------------------------------------------------------
     -- LED Status output
