@@ -82,9 +82,9 @@ entity top is
 	--
 	btn : in std_logic_vector (4 downto 0);
 	swi : in std_logic_vector (7 downto 0);
-	led : out std_logic_vector (7 downto 0);
+	led : out std_logic_vector (7 downto 0)
     --
-    pmod_ja : out std_logic_vector (7 downto 0)
+    -- pmod_ja : out std_logic_vector (7 downto 0)
 
     );
 
@@ -1174,7 +1174,8 @@ begin
     -- end if;
     -- end process;
 
-    pmod_ja(0) <= idelay_out(0);
+    -- pmod_ja(0) <= serdes_debug(0);
+    -- pmod_ja(1) <= serdes_clkdiv;
 
     -- pmod_ja <=  par_data(0)(9 downto 2) when swi_ovr(7 downto 4) = "0000" else
     --             par_data(1)(9 downto 2) when swi_ovr(7 downto 4) = "0001" else

@@ -50,17 +50,17 @@ set_property PACKAGE_PIN R16 [get_ports {btn[4]}]
 
 set_property IOSTANDARD LVCMOS25 [get_ports {btn[*]}]
 
-set_property PACKAGE_PIN Y11   [get_ports {pmod_ja[0]}]
-set_property PACKAGE_PIN AA11  [get_ports {pmod_ja[1]}]
-set_property PACKAGE_PIN Y10   [get_ports {pmod_ja[2]}]
-set_property PACKAGE_PIN AA9   [get_ports {pmod_ja[3]}]
-set_property PACKAGE_PIN AB11  [get_ports {pmod_ja[4]}]
-set_property PACKAGE_PIN AB10  [get_ports {pmod_ja[5]}]
-set_property PACKAGE_PIN AB9   [get_ports {pmod_ja[6]}]
-set_property PACKAGE_PIN AA8   [get_ports {pmod_ja[7]}]
-  
-set_false_path -to [get_ports {pmod_*}]
-set_false_path -from [get_ports {pmod_*}]
+# set_property PACKAGE_PIN Y11   [get_ports {pmod_ja[0]}]
+# set_property PACKAGE_PIN AA11  [get_ports {pmod_ja[1]}]
+# set_property PACKAGE_PIN Y10   [get_ports {pmod_ja[2]}]
+# set_property PACKAGE_PIN AA9   [get_ports {pmod_ja[3]}]
+# set_property PACKAGE_PIN AB11  [get_ports {pmod_ja[4]}]
+# set_property PACKAGE_PIN AB10  [get_ports {pmod_ja[5]}]
+# set_property PACKAGE_PIN AB9   [get_ports {pmod_ja[6]}]
+# set_property PACKAGE_PIN AA8   [get_ports {pmod_ja[7]}]
+#   
+# set_false_path -to [get_ports {pmod_*}]
+# set_false_path -from [get_ports {pmod_*}]
 
 # set_output_delay -reference_pin [get_ports {pmod_ja[0]}] [get_ports {pmod_ja[1]}]
 # set_output_delay -reference_pin [get_ports {pmod_ja[0]}] [get_ports {pmod_ja[2]}]
