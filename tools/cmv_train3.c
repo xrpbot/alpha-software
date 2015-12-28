@@ -195,6 +195,19 @@ int	cmv_good(unsigned chan)
 	return 0;
 }
 
+int	cmv_bad(unsigned chan)
+{
+	uint32_t val;
+
+	// usleep(100);
+	val = get_del_reg(chan);
+
+	if ((val & 0x30000000) == 0x10000000)
+	    return 1;
+	
+	return 0;
+}
+
 
 int	main(int argc, char *argv[])
 {
@@ -303,9 +316,26 @@ int	main(int argc, char *argv[])
 	// set_sys_reg(144, reset & ~2);	/* serdes reset		*/
 	// set_sys_reg(144, reset | 2);		/* serdes enable	*/
 
-	set_fil_reg(FIL_REG_OVERRIDE, 0x00FF0004);	// debug override
+	//set_fil_reg(FIL_REG_OVERRIDE, 0x00FF0004);	// debug override
 
 	printf("initial control adjustment ...\n");
+
+	for (int j = 0; j <= 0x3FF; j++) {
+		set_cmv_reg(78, j & 0xFF);
+		set_cmv_reg(79, (j >> 8));
+		delay(3);
+
+		for (int i = 0; i < 4096; i++) {
+			set_fil_reg(0,i);
+			int res = (get_del_reg(0) & 0x30000000);
+			if(res == 0x20000000) {
+				printf("%04X, %04X\n", j, i);
+			}
+		} 
+	}
+	
+
+	return 0;
 
 	set_del_reg(17, 0x10);
 
@@ -427,7 +457,7 @@ int	main(int argc, char *argv[])
 	if (opt_all) {
 	    printf("checking all bit pattern ...\n");
 
-	    for (int p=0; p<(1<<12); p++) {
+	    for (int p=0; p<(1<<10); p++) {
 		cmv_set_pattern(p);
 
 		usleep(100);
@@ -437,7 +467,7 @@ int	main(int argc, char *argv[])
 	} else {
 	    printf("checking bit pattern ...\n");
 
-	    for (int b=0; b<12; b++) {
+	    for (int b=0; b<10; b++) {
 		cmv_set_pattern((1 << b));
 	
 		usleep(50000);
