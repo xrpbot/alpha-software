@@ -42,13 +42,13 @@ void	set_cmv_reg(unsigned reg, uint16_t val)
 
 uint32_t get_fil_reg(unsigned reg)
 {
-	volatile uint32_t *ptr = (uint32_t *)(cmv_addr + 0x00001000);
+	volatile uint32_t *ptr = (uint32_t *)(cmv_addr + 0x00010000);
 	return ptr[reg];
 }
 
 void	set_fil_reg(unsigned reg, uint32_t val)
 {
-	volatile uint32_t *ptr = (uint32_t *)(cmv_addr + 0x00001000);
+	volatile uint32_t *ptr = (uint32_t *)(cmv_addr + 0x00010000);
 	ptr[reg] = val;
 	delay(1);
 }
