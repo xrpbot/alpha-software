@@ -979,7 +979,7 @@ begin
 	    par_pattern(I) <= reg_pattern;
 	end loop;
 
-	par_pattern(CHANNELS) <= x"080";
+	par_pattern(CHANNELS) <= x"200";
     end process;
 
     --------------------------------------------------------------------
