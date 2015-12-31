@@ -53,13 +53,13 @@ begin
 	CLKFBOUT_MULT_F => 10.0,
 	CLKOUT0_DIVIDE_F => 4.00,	-- 150MHz HDMI clock
 	CLKOUT1_DIVIDE => 600/120,	-- 120MHz LVDS clock
-	CLKOUT2_DIVIDE => 600/24,	--  12MHz WORD clock
+	CLKOUT2_DIVIDE => 600/24,	--  24MHz WORD clock
 	--
 	CLKOUT0_PHASE => 0.0,
 	CLKOUT1_PHASE => 0.0,
 	CLKOUT2_PHASE => 0.0,
 	--
-	DIVCLK_DIVIDE => 2 )
+	DIVCLK_DIVIDE => 1 )
     port map (
 	CLKIN1 => ref_clk_in,
 	CLKFBOUT => pll_fbout,
