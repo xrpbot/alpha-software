@@ -31,7 +31,7 @@ entity fifo_chop is
     port (
 	par_clk		: in  std_logic;
 	par_enable	: in  std_logic;
-	par_data	: in  par12_a (31 downto 0);
+	par_data	: in  par12_a (15 downto 0);
 	--
 	par_ctrl	: in  std_logic_vector (11 downto 0);
 	--

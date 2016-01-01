@@ -1004,56 +1004,71 @@ begin
     -- Data FIFO
     --------------------------------------------------------------------
 
-    -- FIFO_data_inst : FIFO_DUALCLOCK_MACRO
-        -- generic map (
-        --     DEVICE => "7SERIES",
-        --     DATA_WIDTH => DATA_WIDTH,
-        --     ALMOST_FULL_OFFSET => x"020",
-        --     ALMOST_EMPTY_OFFSET => x"020",
-        --     FIFO_SIZE => "36Kb",
-        --     FIRST_WORD_FALL_THROUGH => TRUE )
-        -- port map (
-        --     DI => fifo_data_in,
-        --     WRCLK => fifo_data_wclk,
-        --     WREN => fifo_data_wen,
-        --     FULL => fifo_data_full,
-        --     ALMOSTFULL => fifo_data_high,
-        --     WRERR => fifo_data_wrerr,
-        --     WRCOUNT => fifo_data_wrcount,
-        --     --
-        --     DO => fifo_data_out,
-        --     RDCLK => fifo_data_rclk,
-        --     RDEN => fifo_data_ren,
-        --     EMPTY => fifo_data_empty,
-        --     ALMOSTEMPTY => fifo_data_low,
-        --     RDERR => fifo_data_rderr,
-        --     RDCOUNT => fifo_data_rdcount,
-        --     --
-        --     RST => fifo_data_rst );
+     FIFO_data_inst : FIFO_DUALCLOCK_MACRO
+        generic map (
+            DEVICE => "7SERIES",
+            DATA_WIDTH => DATA_WIDTH,
+            ALMOST_FULL_OFFSET => x"020",
+            ALMOST_EMPTY_OFFSET => x"020",
+            FIFO_SIZE => "36Kb",
+            FIRST_WORD_FALL_THROUGH => TRUE )
+        port map (
+            DI => fifo_data_in,
+            WRCLK => fifo_data_wclk,
+            WREN => fifo_data_wen,
+            FULL => fifo_data_full,
+            ALMOSTFULL => fifo_data_high,
+            WRERR => fifo_data_wrerr,
+            WRCOUNT => fifo_data_wrcount,
+            --
+            DO => fifo_data_out,
+            RDCLK => fifo_data_rclk,
+            RDEN => fifo_data_ren,
+            EMPTY => fifo_data_empty,
+            ALMOSTEMPTY => fifo_data_low,
+            RDERR => fifo_data_rderr,
+            RDCOUNT => fifo_data_rdcount,
+            --
+            RST => fifo_data_rst );
 
-    -- fifo_reset_inst : entity work.fifo_reset
-        -- port map (
-        --     rclk => fifo_data_rclk,
-        --     wclk => fifo_data_wclk,
-        --     reset => fifo_data_reset,
-        --     --
-        --     fifo_rst => fifo_data_rst,
-        --     fifo_rrdy => fifo_data_rrdy,
-        --     fifo_wrdy => fifo_data_wrdy );
+     fifo_reset_inst : entity work.fifo_reset
+        port map (
+            rclk => fifo_data_rclk,
+            wclk => fifo_data_wclk,
+            reset => fifo_data_reset,
+            --
+            fifo_rst => fifo_data_rst,
+            fifo_rrdy => fifo_data_rrdy,
+            fifo_wrdy => fifo_data_wrdy );
 
 
-    -- pixel_remap_even_inst : entity work.pixel_remap
-        --   generic map (
-        --     NB_LANES => CHANNELS/2 )
-        --   port map (
-        --     clk      => serdes_clkdiv,
-        --     --
-        --     dv_par   => par_valid,
-        --     ctrl_in  => par_data(16),
-        --     par_din  => par_data(15 downto 0),
-        --     --
-        --     ctrl_out => remap_ctrl,
-        --     par_dout => remap_data(15 downto 0) );
+     pixel_remap_even_inst : entity work.pixel_remap
+        generic map (
+            NB_LANES => CHANNELS/2 )
+        port map (
+            clk      => serdes_clkdiv,
+            --
+            dv_par   => par_valid,
+            ctrl_in  => par_data(CHANNELS),
+            par_din  => par_data(CHANNELS/2-1 downto 0),
+            --
+            ctrl_out => remap_ctrl,
+            par_dout => remap_data(CHANNELS/2-1 downto 0) 
+        );
+
+    pixel_remap_odd_inst : entity work.pixel_remap
+        generic map (
+            NB_LANES => CHANNELS/2 )
+        port map (
+            clk      => serdes_clkdiv,
+            --
+            dv_par   => par_valid,
+            ctrl_in  => par_data(CHANNELS),
+            par_din  => par_data(CHANNELS-1 downto CHANNELS/2),
+            --
+            ctrl_out => open,
+            par_dout => remap_data(CHANNELS-1 downto CHANNELS/2)
+        );
 
     valid_proc : process (serdes_clkdiv)
     begin
@@ -1067,23 +1082,23 @@ begin
     end process;
 
 
-    -- fifo_chop_inst : entity work.fifo_chop
-        -- port map (
-        --     par_clk => serdes_clk,
-        --     par_enable => par_enable,
-        --     par_data => remap_data(15 downto 0),
-        --     --
-        --     par_ctrl => remap_ctrl,
-        --     --
-        --     fifo_clk => fifo_data_wclk,
-        --     fifo_enable => data_wen,
-        --     fifo_data => data_in,
-        --     --
-        --     fifo_ctrl => fifo_ctrl );
+     fifo_chop_inst : entity work.fifo_chop
+         port map (
+             par_clk => serdes_clk,
+             par_enable => par_enable,
+             par_data => remap_data(15 downto 0),
+             --
+             par_ctrl => remap_ctrl,
+             --
+             fifo_clk => fifo_data_wclk,
+             fifo_enable => data_wen,
+             fifo_data => data_in,
+             --
+             fifo_ctrl => fifo_ctrl );
 
-    -- lut_dval_in <= fifo_ctrl(0);
-    -- lut_lval_in <= fifo_ctrl(0);
-    -- lut_fval_in <= fifo_ctrl(0);
+     lut_dval_in <= fifo_ctrl(0);
+     lut_lval_in <= fifo_ctrl(0);
+     lut_fval_in <= fifo_ctrl(0);
 
     match_en <= '1'
         when (fifo_ctrl(2 downto 0) and reg_mask) = reg_mval
