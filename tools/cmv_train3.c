@@ -1,14 +1,14 @@
 /**********************************************************************
 **  cmv_train3.c
-**	Train CMV12K LVDS channels
-**	Version 1.3
+**      Train CMV12K LVDS channels
+**      Version 1.3
 **
 **  Copyright (C) 2013-2014 H.Poetzl
 **
-**	This program is free software: you can redistribute it and/or
-**	modify it under the terms of the GNU General Public License
-**	as published by the Free Software Foundation, either version
-**	2 of the License, or (at your option) any later version.
+**      This program is free software: you can redistribute it and/or
+**      modify it under the terms of the GNU General Public License
+**      as published by the Free Software Foundation, either version
+**      2 of the License, or (at your option) any later version.
 **
 **********************************************************************/
 
@@ -28,7 +28,7 @@
 #include "cmv_reg.h"
 
 
-#define	VERSION	"V1.3"
+#define VERSION "V1.3"
 
 static char *cmd_name = NULL;
 
@@ -48,447 +48,480 @@ static int32_t delay_param = -1;
 static bool opt_all = false;
 
 
-#define min(a, b)	(((a) < (b)) ? (a) : (b))
-#define max(a, b)	(((a) > (b)) ? (a) : (b))
+#define min(a, b)       (((a) < (b)) ? (a) : (b))
+#define max(a, b)       (((a) > (b)) ? (a) : (b))
 
 
 typedef long long int (stoll_t)(const char *, char **, int);
 
 long long int argtoll(
-	const char *str, const char **end, stoll_t stoll)
+        const char *str, const char **end, stoll_t stoll)
 {
-	int bit, inv = 0;
-	long long int val = 0;
-	char *eptr;
+        int bit, inv = 0;
+        long long int val = 0;
+        char *eptr;
 
-	if (!str)
-	    return -1;
-	if (!stoll)
-	    stoll = strtoll;
-	
-	switch (*str) {
-	case '~':
-	case '!':
-	    inv = 1;	/* invert */
-	    str++;
-	default:
-	    break;
-	}
+        if (!str)
+            return -1;
+        if (!stoll)
+            stoll = strtoll;
+        
+        switch (*str) {
+        case '~':
+        case '!':
+            inv = 1;    /* invert */
+            str++;
+        default:
+            break;
+        }
 
-	while (*str) {
-	    switch (*str) {
-	    case '^':
-		bit = strtol(str+1, &eptr, 0);
-		val ^= (1LL << bit);
-		break;
-	    case '&':
-		val &= stoll(str+1, &eptr, 0);
-		break;
-	    case '|':
-		val |= stoll(str+1, &eptr, 0);
-		break;
-	    case '-':
-	    case '+':
-	    case ',':
-	    case '=':
-		break;
-	    default:
-		val = stoll(str, &eptr, 0);
-		break;
-	    }
-	    if (eptr == str)
-		break;
-	    str = eptr;
-	}
+        while (*str) {
+            switch (*str) {
+            case '^':
+                bit = strtol(str+1, &eptr, 0);
+                val ^= (1LL << bit);
+                break;
+            case '&':
+                val &= stoll(str+1, &eptr, 0);
+                break;
+            case '|':
+                val |= stoll(str+1, &eptr, 0);
+                break;
+            case '-':
+            case '+':
+            case ',':
+            case '=':
+                break;
+            default:
+                val = stoll(str, &eptr, 0);
+                break;
+            }
+            if (eptr == str)
+                break;
+            str = eptr;
+        }
 
-	if (end)
-	    *end = eptr;
-	return (inv)?~(val):(val);
+        if (end)
+            *end = eptr;
+        return (inv)?~(val):(val);
 }
 
 
 uint32_t get_sys_reg(unsigned reg)
 {
-	volatile uint32_t *ptr = (uint32_t *)(sys_addr);
-	return ptr[reg];
+    volatile uint32_t *ptr = (uint32_t *)(sys_addr);
+    return ptr[reg];
 }
 
-void	set_sys_reg(unsigned reg, uint32_t val)
+void    set_sys_reg(unsigned reg, uint32_t val)
 {
-	volatile uint32_t *ptr = (uint32_t *)(sys_addr);
-	ptr[reg] = val;
-}
-
-
-void	cmv_bitslip(unsigned chan)
-{
-	set_del_reg(chan, 0x80000000);
-	usleep(100);
+    volatile uint32_t *ptr = (uint32_t *)(sys_addr);
+    ptr[reg] = val;
 }
 
 
-int	num_bits(uint32_t val)
+void    cmv_bitslip(unsigned chan)
 {
-	uint32_t ret = 0;
-
-	for (int b=0; b<32; b++)
-	    if ((val >> b) & 1)
-		ret++;
-
-	return ret;
+    set_del_reg(chan, 0x80000000);
+    usleep(100);
 }
 
-int	msb_set(uint32_t val)
-{
-	for (int b=31; b>0; b--)
-	    if ((val >> b) & 1)
-		return b;
 
-	return -1;
+int     num_bits(uint32_t val)
+{
+    uint32_t ret = 0;
+
+    for (int b=0; b<32; b++)
+        if ((val >> b) & 1)
+            ret++;
+
+    return ret;
 }
 
-int	lsb_set(uint32_t val)
+int     msb_set(uint32_t val)
 {
-	for (int b=0; b<32; b++)
-	    if ((val >> b) & 1)
-		return b;
+    for (int b=31; b>0; b--)
+        if ((val >> b) & 1)
+            return b;
 
-	return -1;
+    return -1;
+}
+
+int     lsb_set(uint32_t val)
+{
+    for (int b=0; b<32; b++)
+        if ((val >> b) & 1)
+            return b;
+
+    return -1;
 }
 
 void cmv_set_pattern(uint32_t p) 
 {
-	set_fil_reg(FIL_REG_PATTERN, ((p << 2) & 0xFFF));
-	set_cmv_reg(78, p & 0xFF);
-	set_cmv_reg(79, p >> 8);
+    set_cmv_reg(78, p & 0xFF);
+    set_cmv_reg(79, (p >> 8));
+    set_fil_reg(0, p);
 }
 
 
 uint32_t cmv_check(unsigned chan)
 {
-	uint32_t val, ret = 0;
+    uint32_t val, ret = 0;
 
-	for (int d=0; d<32; d++) {
-	    set_del_reg(chan, d);
+    for (int d=0; d<32; d++) {
+        set_del_reg(chan, d);
 
-	    val = get_del_reg(chan);
-	
-	    if ((val & 0x30000000) == 0x20000000) {
-	    	ret |= (1 << d);
-	    	//printf("c: \t%d d:\t%d ok\n", chan, d);
-	    }
-	}
+        val = get_del_reg(chan);
+    
+        if ((val & 0x30000000) == 0x20000000) {
+            ret |= (1 << d);
+            //printf("c: \t%d d:\t%d ok\n", chan, d);
+        }
+    }
 
-	return ret;
+    return ret;
 }
 
-int	cmv_good(unsigned chan)
+int     cmv_good(unsigned chan)
 {
-	uint32_t val;
+    uint32_t val;
 
-	// usleep(100);
-	val = get_del_reg(chan);
+    // usleep(100);
+    val = get_del_reg(chan);
 
-	if ((val & 0x30000000) == 0x20000000)
-	    return 1;
-	
-	return 0;
+    if ((val & 0x30000000) == 0x20000000)
+        return 1;
+    
+    return 0;
 }
 
-int	cmv_bad(unsigned chan)
+int     cmv_bad(unsigned chan)
 {
-	uint32_t val;
+    uint32_t val;
 
-	// usleep(100);
-	val = get_del_reg(chan);
+    // usleep(100);
+    val = get_del_reg(chan);
 
-	if ((val & 0x30000000) == 0x10000000)
-	    return 1;
-	
-	return 0;
+    if ((val & 0x30000000) == 0x10000000)
+        return 1;
+    
+    return 0;
 }
 
 
-int	main(int argc, char *argv[])
+int     main(int argc, char *argv[])
 {
-	extern int optind;
-	extern char *optarg;
-	int c, err_flag = 0;
+    extern int optind;
+    extern char *optarg;
+    int c, err_flag = 0;
 
-	cmd_name = argv[0];
-	while ((c = getopt(argc, argv, "haB:S:A:P:D:")) != EOF) {
-	    switch (c) {
-	    case 'h':
-		fprintf(stderr,
-		    "This is %s " VERSION "\n"
-		    "options are:\n"
-		    "-h        print this help message\n"
-		    "-a        test all bit pattern\n"
-		    "-B <val>  memory mapping base\n"
-		    "-S <val>  memory mapping size\n"
-		    "-A <val>  memory mapping address\n"
-		    "-P <val>  training pattern\n"
-		    "-D <val>  delay\n"
-		    , cmd_name);
-		exit(0);
-		break;
-	    case 'a':
-		opt_all = true;
-		break;
-	    case 'B':
-		cmv_base = argtoll(optarg, NULL, NULL);
-		break;
-	    case 'S':
-		cmv_size = argtoll(optarg, NULL, NULL);
-		break;
-	    case 'A':
-		cmv_addr = argtoll(optarg, NULL, NULL);
-		break;
-	    case 'P':
-		pattern = argtoll(optarg, NULL, NULL) & 0xFFF;
-		break;
-		case 'D':
-		delay_param = argtoll(optarg, NULL, NULL) & 0xFF;
-		break;
-	    case '?':
-	    default:
-		err_flag++;
-		break;
-	    }
-	}
-	if (err_flag) {
-	    fprintf(stderr, 
-		"Usage: %s -[hvB:S:E:] path ...\n"
-		"%s -h for help.\n",
-		cmd_name, cmd_name);
-	    exit(2);
-	}
+    cmd_name = argv[0];
+    while ((c = getopt(argc, argv, "haB:S:A:P:D:")) != EOF) {
+        switch (c) {
+        case 'h':
+            fprintf(stderr,
+                "This is %s " VERSION "\n"
+                "options are:\n"
+                "-h        print this help message\n"
+                "-a        test all bit pattern\n"
+                "-B <val>  memory mapping base\n"
+                "-S <val>  memory mapping size\n"
+                "-A <val>  memory mapping address\n"
+                "-P <val>  training pattern\n"
+                "-D <val>  delay\n"
+                , cmd_name);
+            exit(0);
+            break;
+        case 'a':
+            opt_all = true;
+            break;
+        case 'B':
+            cmv_base = argtoll(optarg, NULL, NULL);
+            break;
+        case 'S':
+            cmv_size = argtoll(optarg, NULL, NULL);
+            break;
+        case 'A':
+            cmv_addr = argtoll(optarg, NULL, NULL);
+            break;
+        case 'P':
+            pattern = argtoll(optarg, NULL, NULL) & 0xFFF;
+            break;
+            case 'D':
+            delay_param = argtoll(optarg, NULL, NULL) & 0xFF;
+            break;
+        case '?':
+        default:
+            err_flag++;
+            break;
+        }
+    }
+    if (err_flag) {
+        fprintf(stderr, 
+            "Usage: %s -[hvB:S:E:] path ...\n"
+            "%s -h for help.\n",
+            cmd_name, cmd_name);
+        exit(2);
+    }
 
 
-	int fd = open(dev_mem, O_RDWR | O_SYNC);
-	if (fd == -1) {
-	    fprintf(stderr,
-		"error opening >%s<.\n%s\n",
-		dev_mem, strerror(errno));
-	    exit(1);
-	}
+    int fd = open(dev_mem, O_RDWR | O_SYNC);
+    if (fd == -1) {
+        fprintf(stderr,
+            "error opening >%s<.\n%s\n",
+            dev_mem, strerror(errno));
+        exit(1);
+    }
 
-	if (cmv_addr == 0)
-	    cmv_addr = cmv_base;
+    if (cmv_addr == 0)
+        cmv_addr = cmv_base;
 
-	void *base = mmap((void *)cmv_addr, cmv_size,
-	    PROT_READ | PROT_WRITE, MAP_SHARED,
-	    fd, cmv_base);
-	if (base == (void *)-1) {
-	    fprintf(stderr,
-		"error mapping 0x%08lX+0x%08lX @0x%08lX.\n%s\n",
-		(long)cmv_base, (long)cmv_size, (long)cmv_addr,
-		strerror(errno));
-	    exit(2);
-	} else
-	    cmv_addr = (long unsigned)base;
+    void *base = mmap((void *)cmv_addr, cmv_size,
+        PROT_READ | PROT_WRITE, MAP_SHARED,
+        fd, cmv_base);
+    if (base == (void *)-1) {
+        fprintf(stderr,
+            "error mapping 0x%08lX+0x%08lX @0x%08lX.\n%s\n",
+            (long)cmv_base, (long)cmv_size, (long)cmv_addr,
+            strerror(errno));
+        exit(2);
+    } else
+        cmv_addr = (long unsigned)base;
 
-	fprintf(stderr,
-	    "mapped 0x%08lX+0x%08lX to 0x%08lX.\n",
-	    (long unsigned)cmv_base, (long unsigned)cmv_size,
-	    (long unsigned)cmv_addr);
+    fprintf(stderr,
+        "mapped 0x%08lX+0x%08lX to 0x%08lX.\n",
+        (long unsigned)cmv_base, (long unsigned)cmv_size,
+        (long unsigned)cmv_addr);
 
 #if 0
-	void *sysr = mmap((void *)sys_addr, sys_size,
-	    PROT_READ | PROT_WRITE, MAP_SHARED,
-	    fd, sys_base);
-	if (sysr == (void *)-1) {
-	    fprintf(stderr,
-		"error mapping 0x%08lX+0x%08lX @0x%08lX.\n%s\n",
-		(long)sys_base, (long)sys_size, (long)sys_addr,
-		strerror(errno));
-	    exit(2);
-	} else
-	    sys_addr = (long unsigned)sysr;
+    void *sysr = mmap((void *)sys_addr, sys_size,
+        PROT_READ | PROT_WRITE, MAP_SHARED,
+        fd, sys_base);
+    if (sysr == (void *)-1) {
+        fprintf(stderr,
+            "error mapping 0x%08lX+0x%08lX @0x%08lX.\n%s\n",
+            (long)sys_base, (long)sys_size, (long)sys_addr,
+            strerror(errno));
+        exit(2);
+    } else
+        sys_addr = (long unsigned)sysr;
 
-	fprintf(stderr,
-	    "mapped 0x%08lX+0x%08lX to 0x%08lX.\n",
-	    (long unsigned)sys_base, (long unsigned)sys_size,
-	    (long unsigned)sys_addr);
+    fprintf(stderr,
+        "mapped 0x%08lX+0x%08lX to 0x%08lX.\n",
+        (long unsigned)sys_base, (long unsigned)sys_size,
+        (long unsigned)sys_addr);
 #endif
 
-	// uint32_t reset = get_sys_reg(144);
-	// set_sys_reg(144, reset & ~2);	/* serdes reset		*/
-	// set_sys_reg(144, reset | 2);		/* serdes enable	*/
+    // uint32_t reset = get_sys_reg(144);
+    // set_sys_reg(144, reset & ~2);        /* serdes reset         */
+    // set_sys_reg(144, reset | 2);         /* serdes enable        */
 
-	//set_fil_reg(FIL_REG_OVERRIDE, 0x00FF0004);	// debug override
+    //set_fil_reg(FIL_REG_OVERRIDE, 0x00FF0004);    // debug override
 
-	printf("initial control adjustment ...\n");
+    #if 0
+    printf("1 ...\n");
 
-	for (int j = 0; j <= 0x3FF; j++) {
-		set_cmv_reg(78, j & 0xFF);
-		set_cmv_reg(79, (j >> 8));
-		delay(3);
+    for (int j = 0; j < 16; j++) {
+            for (int i = 0; i < 4096; i++) {
+                    set_fil_reg(0,i);
+                    usleep(100);
+                    int res = (get_del_reg(j) & 0x30000000);
+                    if(res == 0x20000000 || res == 0) {
+                            printf("ch%d: %03X: 0x%X\n", j, i, res);
+                    }
+            } 
+    }
 
-		for (int i = 0; i < 4096; i++) {
-			set_fil_reg(0,i);
-			int res = (get_del_reg(0) & 0x30000000);
-			if(res == 0x20000000) {
-				printf("%04X, %04X\n", j, i);
-			}
-		} 
-	}
-	
+    printf("2 ...\n");
+    for (int j = 0; j <= 0x3FF; j++) {
+            set_cmv_reg(78, j & 0xFF);
+            set_cmv_reg(79, (j >> 8));
+            usleep(100);
 
-	return 0;
+            for (int i = 0; i < 4096; i++) {
+                    set_fil_reg(0,i);
+                    usleep(10);
+                    int res = (get_del_reg(0) & 0x30000000);
+                    if(res == 0x20000000) {
+                            printf("%04X, %04X\n", j, i);
+                    }
+            } 
+    }
+    
 
-	set_del_reg(17, 0x10);
+    return 0;
+#endif
+    
+    set_del_reg(17, 0x10);
 
-	for (int w=0; w<2; w++) {
-	    bool done = false;
+    for (int w=0; w<2; w++) {
+        bool done = false;
 
-	    for (int s=0; s<6; s++) {			/* bitslip	*/
-		for (int d=0; d<32; d++) {		/* delay	*/
-		    set_del_reg(2, d);
-		    printf("          w: %d s: %d d: %d\n", w, s, d);
-		    if (cmv_good(2)) {			/* first match	*/
-				done = true;
-				//printf("match for w: %d s: %d d: %d\n", w, s, d);
-			}
-		    if (done) break;
-		}
-		if (done) break;
-		cmv_bitslip(2);
-	    }
-	    if (done) break;
-	    cmv_bitslip(17);
-	}
+        for (int s=0; s<5; s++) {                   /* bitslip      */
+            for (int d=0; d<32; d++) {              /* delay        */
+                set_del_reg(2, d);
+                printf("          w: %d s: %d d: %d\n", w, s, d);
+                if (cmv_good(2)) {                  /* first match  */
+                            done = true;
+                            //printf("match for w: %d s: %d d: %d\n", w, s, d);
+                    }
+                if (done) break;
+            }
+            if (done) break;
+            cmv_bitslip(2);
+        }
+        if (done) break;
+        cmv_bitslip(17);
+    }
 
-	if (delay_param < 0)
-	{
-		printf("adjusting out delay ...\n");
+    if (delay_param < 0)
+    {
+            printf("adjusting out delay ...\n");
 
-		uint32_t dly_bmin = 0;
-		uint32_t dly_out = 0x1F;
+            uint32_t dly_bmin = 0;
+            uint32_t dly_out = 0x1F;
 
-		cmv_set_pattern(pattern);
+            cmv_set_pattern(pattern);
+    
+            for (int o=0; o<32; o++) {
+                uint32_t bmin = 31;
+                set_del_reg(17, o);
 
-		for (int o=0; o<32; o++) {
-		    uint32_t bmin = 31;
-		    set_del_reg(17, o);
+                for (int c=0; c<16; c++) {
+                    uint32_t val, num, bnum = 0;
+                    
+                    for (int s=0; s<6; s++) {               /* bitslip      */
+                        val = cmv_check(c);                 /* check delay  */
+                        num = num_bits(val);
+                    
+                        if (num > bnum)                     /* keep max     */
+                            bnum = num;
 
-		    for (int c=0; c<16; c++) {
-			uint32_t val, num, bnum = 0;
-			
-			for (int s=0; s<6; s++) {		/* bitslip	*/
-			    val = cmv_check(c);			/* check delay	*/
-			    num = num_bits(val);
-			
-			    if (num > bnum)			/* keep max	*/
-				bnum = num;
+                        cmv_bitslip(c);
+                    }
 
-			    cmv_bitslip(c);
-			}
+                    if (bnum < bmin)                        /* keep min     */
+                        bmin = bnum;
+                }
 
-			if (bnum < bmin)			/* keep min	*/
-			    bmin = bnum;
-		    }
+                if (bmin > dly_bmin) {                      /* keep best    */
+                    dly_out = o;
+                    dly_bmin = bmin;
+                }
+                printf("[%02d] = %02d\n", o, bmin);
+            }
 
-		    if (bmin > dly_bmin) {			/* keep best	*/
-			dly_out = o;
-			dly_bmin = bmin;
-		    }
-		    printf("[%02d] = %02d\n", o, bmin);
-		}
+            printf("found maximum at %02d\n", dly_out);
+            set_del_reg(17, dly_out);
+    } else {
+            printf("using input delay: %02d\n", delay_param);
+            set_del_reg(17, delay_param);
+    }
 
-		printf("found maximum at %02d\n", dly_out);
-		set_del_reg(17, dly_out);
-	} else {
-		printf("using input delay: %02d\n", delay_param);
-		set_del_reg(17, delay_param);
-	}
+    printf("adjusting input delays ...\n");
 
-	printf("adjusting input delays ...\n");
+    cmv_set_pattern(pattern);
+    
+    uint32_t dly_in[17] = { 0 };
 
-	cmv_set_pattern(pattern);
+    for (int c=0; c<17; c++) {
+        uint32_t bslip = 0;                         /* best slip    */
+        uint32_t bsnum = 0;                         /* best value   */
 
-	uint32_t dly_in[17] = { 0 };
+        for (int s=0; s<5; s++) {
+            uint32_t val = cmv_check(c);
+            uint32_t num = num_bits(val);
+            
+            if (bsnum < num) {
+                bslip = s;
+                bsnum = num;
+            }
+            
+            cmv_bitslip(c);
+        }
 
-	for (int c=0; c<17; c++) {
-	    uint32_t bslip = 0;				/* best slip	*/
-	    uint32_t bsnum = 0;				/* best value	*/
+        for (int s=0; s<bslip; s++)
+            cmv_bitslip(c);
 
-	    for (int s=0; s<6; s++) {
-		uint32_t val = cmv_check(c);
-		uint32_t num = num_bits(val);
-		
-		if (bsnum < num) {
-		    bslip = s;
-		    bsnum = num;
-		}
-		
-		cmv_bitslip(c);
-	    }
+        uint32_t val = cmv_check(c);
+        uint32_t num = num_bits(val);
+        uint32_t dly;
 
-	    for (int s=0; s<bslip; s++)
-		cmv_bitslip(c);
+        if (val == 0xFFFFFFFF ) {                   /* center       */
+            printf("[%02d] 0x%08X center  ", c, val);
+            dly = 0x10;
+        } else if (val < 0x80000000 ) {
+            int msb = msb_set(val);                 /* right        */
+            printf("[%02d] 0x%08X msb = %02d", c, val, msb);
+            dly = max(0x00, msb - 16);
+        } else {
+            int lsb = lsb_set(val);                 /* left         */
+            printf("[%02d] 0x%08X lsb = %02d", c, val, lsb);
+            dly = min(0x1F, lsb + 16);
+        }
 
-	    uint32_t val = cmv_check(c);
-	    uint32_t num = num_bits(val);
-	    uint32_t dly;
+        printf(" => %02d (%2d,%2d)\n", dly, num, bsnum);
+        dly_in[c] = dly;
+        set_del_reg(c, dly);
+    }
 
-	    if (val == 0xFFFFFFFF ) {			/* center	*/
-		printf("[%02d] 0x%08X center  ", c, val);
-		dly = 0x10;
-	    } else if (val < 0x80000000 ) {
-		int msb = msb_set(val);			/* right	*/
-		printf("[%02d] 0x%08X msb = %02d", c, val, msb);
-		dly = max(0x00, msb - 16);
-	    } else {
-		int lsb = lsb_set(val);			/* left		*/
-		printf("[%02d] 0x%08X lsb = %02d", c, val, lsb);
-		dly = min(0x1F, lsb + 16);
-	    }
+    //set_fil_reg(FIL_REG_OVERRIDE, 0x00FF0000);    // debug override
 
-	    printf(" => %02d (%2d,%2d)\n", dly, num, bsnum);
-	    dly_in[c] = dly;
-	    set_del_reg(c, dly);
-	}
+    uint32_t check = 0xFFFFFFFF;
 
-	set_fil_reg(FIL_REG_OVERRIDE, 0x00FF0000);	// debug override
+    if (opt_all) {
+        printf("checking all bit pattern ...\n");
 
-	uint32_t check = 0xFFFFFFFF;
+        for (int p=0; p<(1<<10); p++) {
+            cmv_set_pattern(pattern);
+            usleep(100);
+            check &= get_fil_reg(6);
+            check &= ~get_fil_reg(7);
+        }
 
-	if (opt_all) {
-	    printf("checking all bit pattern ...\n");
+        // for (int j = 0; j <= 0x3FF; j++) {
+        //     set_cmv_reg(78, j & 0xFF);
+        //     set_cmv_reg(79, (j >> 8));
+        //     usleep(100);
 
-	    for (int p=0; p<(1<<10); p++) {
-		cmv_set_pattern(p);
+        //     for (int i = 0; i < 17; i++) {
+        //         set_fil_reg(0, j);
+        //         usleep(10);
+        //         int res = (get_del_reg(i) & 0x30000000);
+        //         if(res != 0x20000000) {
+        //             printf("[%d] 0x%08x\n", i, j);
+        //         }
+        //     } 
+        // }
 
-		usleep(100);
-		check &= get_fil_reg(FIL_REG_MATCH);
-		check &= ~get_fil_reg(FIL_REG_MISMATCH);
-	    }
-	} else {
-	    printf("checking bit pattern ...\n");
+    } else {
+        printf("checking bit pattern ...\n");
 
-	    for (int b=0; b<10; b++) {
-		cmv_set_pattern((1 << b));
-	
-		usleep(50000);
-		check &= get_fil_reg(FIL_REG_MATCH);
-		check &= ~get_fil_reg(FIL_REG_MISMATCH);
-	    }
+        for (int b=0; b<10; b++) {
+            cmv_set_pattern(1 << b);
 
-	    for (int b=0; b<12; b++) {
-		cmv_set_pattern(~(1 << b));
-	
-		usleep(50000);
-		check &= get_fil_reg(FIL_REG_MATCH);
-		check &= ~get_fil_reg(FIL_REG_MISMATCH);
-	    }
-	}
+            usleep(50000);
+            check &= get_fil_reg(6);
+            check &= ~get_fil_reg(7);
+            printf("match: %016x not mismatch: %016x\n", get_fil_reg(6), ~get_fil_reg(7));
+        }
 
-	printf("result = 0x%08X\n", check);
+        for (int b=0; b<10; b++) {
+            cmv_set_pattern((~(1 << b))&0x3FF);
+    
+            usleep(50000);
+            check &= get_fil_reg(6);
+            check &= ~get_fil_reg(7);
+            printf("match: %016x not mismatch: %016x\n", get_fil_reg(6), ~get_fil_reg(7));
+        }
+    }
 
-	set_fil_reg(FIL_REG_OVERRIDE, 0x00000000);	// unlock override
-	cmv_set_pattern(pattern);
+    printf("result = 0x%08X\n", check);
 
-	exit((err_flag)?1:0);
+    //set_fil_reg(FIL_REG_OVERRIDE, 0x00000000);    // unlock override
+    
+    cmv_set_pattern(pattern);
+
+    exit((err_flag)?1:0);
 }
 
