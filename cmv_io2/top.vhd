@@ -1044,31 +1044,31 @@ begin
 
      pixel_remap_even_inst : entity work.pixel_remap
         generic map (
-            NB_LANES => CHANNELS/2 )
+            NB_LANES => CHANNELS)
         port map (
             clk      => serdes_clkdiv,
             --
             dv_par   => par_valid,
             ctrl_in  => par_data(CHANNELS),
-            par_din  => par_data(CHANNELS/2-1 downto 0),
+            par_din  => par_data(CHANNELS-1 downto 0),
             --
             ctrl_out => remap_ctrl,
-            par_dout => remap_data(CHANNELS/2-1 downto 0) 
+            par_dout => remap_data(CHANNELS-1 downto 0) 
         );
 
-    pixel_remap_odd_inst : entity work.pixel_remap
-        generic map (
-            NB_LANES => CHANNELS/2 )
-        port map (
-            clk      => serdes_clkdiv,
-            --
-            dv_par   => par_valid,
-            ctrl_in  => par_data(CHANNELS),
-            par_din  => par_data(CHANNELS-1 downto CHANNELS/2),
-            --
-            ctrl_out => open,
-            par_dout => remap_data(CHANNELS-1 downto CHANNELS/2)
-        );
+    --pixel_remap_odd_inst : entity work.pixel_remap
+    --    generic map (
+    --        NB_LANES => CHANNELS/2 )
+    --    port map (
+    --        clk      => serdes_clkdiv,
+    --        --
+    --        dv_par   => par_valid,
+    --        ctrl_in  => par_data(CHANNELS),
+    --        par_din  => par_data(CHANNELS-1 downto CHANNELS/2),
+    --        --
+    --        ctrl_out => open,
+    --        par_dout => remap_data(CHANNELS-1 downto CHANNELS/2)
+    --    );
 
     valid_proc : process (serdes_clkdiv)
     begin

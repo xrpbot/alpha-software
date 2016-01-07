@@ -51,11 +51,11 @@ entity dsp48_wrap is
 	USE_PATTERN_DETECT	: string			:= "NO_PATDET";
 	USE_SIMD		: string			:= "ONE48";
 	--
-	IS_CLK_INVERTED		: std_ulogic			:= '0';
+	IS_CLK_INVERTED		: bit				:= '0';
 	IS_INMODE_INVERTED	: std_logic_vector (4 downto 0) := "00000";
 	IS_OPMODE_INVERTED	: std_logic_vector (6 downto 0) := "0000000";
 	IS_ALUMODE_INVERTED	: std_logic_vector (3 downto 0) := "0000";
-	IS_CARRYIN_INVERTED	: std_ulogic			:= '0'
+	IS_CARRYIN_INVERTED	: bit				:= '0'
     );
     port (
 	CLK		: in std_logic;

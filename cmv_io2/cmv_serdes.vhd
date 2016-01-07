@@ -19,12 +19,12 @@ use ieee.numeric_std.ALL;
 library unisim;
 use unisim.vcomponents.ALL;
 
-
+use work.vivado_pkg.ALL;
 
 entity cmv_serdes is
-        generic (
-                BITMODE : natural := 12
-        );
+    generic (
+        BITMODE : natural := 12
+    );
     port (
         serdes_clk      : in  std_logic;
         serdes_clkdiv   : in  std_logic;
