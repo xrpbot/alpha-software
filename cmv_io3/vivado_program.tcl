@@ -6,12 +6,10 @@
 
 set ODIR .
 
-return 0
-
 open_hw
 connect_hw_server
 open_hw_target
-set_property PROGRAM.FILE $ODIR/cmv_io2.bit [get_hw_devices xc*]
+set_property PROGRAM.FILE $ODIR/cmv_hdmi.bit [get_hw_devices xc*]
 program_hw_devices [get_hw_devices xc*]
 
 return 0

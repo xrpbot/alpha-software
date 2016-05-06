@@ -89,22 +89,22 @@ library IEEE;
 use IEEE.std_logic_1164.ALL;
 use IEEE.numeric_std.ALL;
 
-use work.par_array_pkg.ALL;	-- Parallel Data
-use work.vivado_pkg.ALL;	-- Vivado Attributes
+use work.par_array_pkg.ALL;     -- Parallel Data
+use work.vivado_pkg.ALL;        -- Vivado Attributes
 
 
 entity pixel_remap is
     generic (
-	NB_LANES   : positive := 16 );
+        NB_LANES   : positive := 16 );
     port (
-	clk        : in  std_logic;
+        clk        : in  std_logic;
 
-	dv_par     : in  std_logic;		-- data valid according to clk
-	ctrl_in    : in  std_logic_vector (12 - 1 downto 0);
-	par_din    : in  par12_a (NB_LANES-1 downto 0);
+        dv_par     : in  std_logic;             -- data valid according to clk
+        ctrl_in    : in  std_logic_vector (12 - 1 downto 0);
+        par_din    : in  par12_a (NB_LANES-1 downto 0);
 
-	ctrl_out   : out std_logic_vector (12 - 1 downto 0);
-	par_dout   : out par12_a (NB_LANES-1 downto 0) );
+        ctrl_out   : out std_logic_vector (12 - 1 downto 0);
+        par_dout   : out par12_a (NB_LANES-1 downto 0) );
 end entity;
 
 
@@ -115,37 +115,37 @@ architecture RTL of pixel_remap is
     constant DATA_WIDTH : positive := 12;
 
     function log2(val : natural) return natural is
-	variable res : natural;
+        variable res : natural;
     begin
-	for i in 30 downto 0 loop
-	    if val > (2 ** i) then
-		res := i;
-		exit;
-	    end if;
-	end loop;
-	return (res + 1);
+        for i in 30 downto 0 loop
+            if val > (2 ** i) then
+                res := i;
+                exit;
+            end if;
+        end loop;
+        return (res + 1);
     end function;
 
-    constant NB_LANES_WIDTH	: positive := log2(NB_LANES);
-    constant SIZE_LINE		: positive := 4096 / (NB_LANES*2);
-    constant ADDR_WIDTH		: positive := log2(SIZE_LINE);
-    constant ADDR_WIDTH_SYNC	: positive := 10;
+    constant NB_LANES_WIDTH     : positive := log2(NB_LANES);
+    constant SIZE_LINE          : positive := 2048 / (NB_LANES*2);
+    constant ADDR_WIDTH         : positive := log2(SIZE_LINE);
+    constant ADDR_WIDTH_SYNC    : positive := 10;
     
-    constant NB_MEM		: positive := NB_LANES / 4;
+    constant NB_MEM             : positive := NB_LANES / 4;
     
     signal din        : std_logic_vector(NB_LANES * DATA_WIDTH - 1 downto 0);
     signal dout       : std_logic_vector(NB_LANES * DATA_WIDTH - 1 downto 0);
 
     type sel_mem_t is array (natural range <>) of
-	unsigned(NB_LANES_WIDTH-2 - 1 downto 0);
+        unsigned(NB_LANES_WIDTH-2 - 1 downto 0);
 
     signal sel_wr   : sel_mem_t(NB_MEM - 1 downto 0);
 
     type vect_data is array (natural range <>) of
-	std_logic_vector(DATA_WIDTH - 1 downto 0);
+        std_logic_vector(DATA_WIDTH - 1 downto 0);
 
     type vect_data2 is array (natural range <>) of
-	std_logic_vector(2*DATA_WIDTH - 1 downto 0);
+        std_logic_vector(2*DATA_WIDTH - 1 downto 0);
 
     signal wr_data    : vect_data2(NB_MEM - 1 downto 0);
     signal data2wr    : vect_data2(NB_LANES - 1 downto 0);
@@ -155,13 +155,13 @@ architecture RTL of pixel_remap is
     signal data2out   : vect_data(NB_LANES - 1 downto 0);
 
     type vect_addr is array (natural range <>) of
-	unsigned(ADDR_WIDTH+1  downto 0);
+        unsigned(ADDR_WIDTH+1  downto 0);
 
     signal addr     : vect_addr(NB_MEM - 1 downto 0);
     signal addr_rd  : vect_addr(NB_MEM - 1 downto 0);
 
     type vect_addr1 is array (natural range <>) of
-	unsigned(ADDR_WIDTH+2 downto 0);
+        unsigned(ADDR_WIDTH+2 downto 0);
 
     signal mem_addr_rd : vect_addr1(NB_MEM - 1 downto 0);
 
@@ -191,28 +191,28 @@ architecture RTL of pixel_remap is
 
     signal addr_wr_sync : unsigned(ADDR_WIDTH_SYNC - 1 downto 0);
     signal addr_rd_sync : unsigned(ADDR_WIDTH_SYNC - 1 downto 0);
-    signal wea_sync	: std_logic_vector(0 downto 0);
-    signal din_sync	: std_logic_vector(1 downto 0);
-    signal dout_sync	: std_logic_vector(1 downto 0);
-    signal read_sync	: std_logic := '0';
-    signal read_sync1	: std_logic := '0';
-    signal read_sync2	: std_logic := '0';
-    signal fval_rd	: std_logic := '0';
-    signal lval_rd	: std_logic := '0';
-    signal dval_rd	: std_logic := '0';
-    signal fval_delay	: std_logic_vector(2 downto 0);
-    signal lval_delay	: std_logic_vector(2 downto 0);
-    signal dval_delay	: std_logic_vector(2 downto 0);
+    signal wea_sync     : std_logic_vector(0 downto 0);
+    signal din_sync     : std_logic_vector(1 downto 0);
+    signal dout_sync    : std_logic_vector(1 downto 0);
+    signal read_sync    : std_logic := '0';
+    signal read_sync1   : std_logic := '0';
+    signal read_sync2   : std_logic := '0';
+    signal fval_rd      : std_logic := '0';
+    signal lval_rd      : std_logic := '0';
+    signal dval_rd      : std_logic := '0';
+    signal fval_delay   : std_logic_vector(2 downto 0);
+    signal lval_delay   : std_logic_vector(2 downto 0);
+    signal dval_delay   : std_logic_vector(2 downto 0);
 
     --
 
-    alias fval_in		: std_logic is ctrl_in(2);
-    alias lval_in		: std_logic is ctrl_in(1);
-    alias dval_in		: std_logic is ctrl_in(0);
+    alias fval_in               : std_logic is ctrl_in(2);
+    alias lval_in               : std_logic is ctrl_in(1);
+    alias dval_in               : std_logic is ctrl_in(0);
 
-    alias fval_out		: std_logic is ctrl_out(2);
-    alias lval_out		: std_logic is ctrl_out(1);
-    alias dval_out		: std_logic is ctrl_out(0);
+    alias fval_out              : std_logic is ctrl_out(2);
+    alias lval_out              : std_logic is ctrl_out(1);
+    alias dval_out              : std_logic is ctrl_out(0);
 
 begin
 
@@ -220,13 +220,13 @@ begin
     -- conversion std_logic_vector <-> array
 
     gen_din : for I in NB_LANES - 1 downto 0 generate
-    	din((I + 1) * DATA_WIDTH - 1 downto I * DATA_WIDTH) <=
-	   par_din(I);
+        din((I + 1) * DATA_WIDTH - 1 downto I * DATA_WIDTH) <=
+           par_din(I);
     end generate;
 
     gen_dout : for I in NB_LANES-1 downto 0 generate
-    	par_dout(I) <=
-	    dout((I + 1) * DATA_WIDTH - 1 downto I * DATA_WIDTH);
+        par_dout(I) <=
+            dout((I + 1) * DATA_WIDTH - 1 downto I * DATA_WIDTH);
     end generate;
 
 
@@ -235,152 +235,152 @@ begin
 
     process(clk)
     begin
-	if rising_edge(clk) then
-	    if (dv_par = '1') then
-		dval1 <= dval_in;
-		lval1 <= lval_in;
-		fval1 <= fval_in;
-		dval2 <= dval1;
-		lval2 <= lval1;
-		fval2 <= fval1;
-	    end if;
-	end if;
+        if rising_edge(clk) then
+            if (dv_par = '1') then
+                dval1 <= dval_in;
+                lval1 <= lval_in;
+                fval1 <= fval_in;
+                dval2 <= dval1;
+                lval2 <= lval1;
+                fval2 <= fval1;
+            end if;
+        end if;
     end process;
 
-    process(clk)
+    process (clk)
     begin
-	if rising_edge(clk) then
-	    if (dv_par = '1') then
-	        for i in 0 to NB_LANES - 1 loop
-		    din1(i) <= 
-			din((i + 1) * DATA_WIDTH - 1 downto i * DATA_WIDTH);
-	        end loop;
-	    end if;
-	end if;
+        if rising_edge(clk) then
+            if (dv_par = '1') then
+                for i in 0 to NB_LANES - 1 loop
+                    din1(i) <= 
+                        din((i + 1) * DATA_WIDTH - 1 downto i * DATA_WIDTH);
+                end loop;
+            end if;
+        end if;
     end process;
 
     -- counter for cycle of 4 clk
     process(clk)
     begin
-	if rising_edge(clk) then
-	    if (dval2 = '0') then
-		count_clk <= (others=>'0');
-	    else
-		count_clk <= count_clk + 1;
-	    end if;
-	end if;
+        if rising_edge(clk) then
+            if (dval2 = '0') then
+                count_clk <= (others=>'0');
+            else
+                count_clk <= count_clk + 1;
+            end if;
+        end if;
     end process;
 
     -- concatenate 2 pixels / lane
     process(clk)
     begin
-	if rising_edge(clk) then
-	    if count_clk = 3 or dval2 = '0' then
-	        for i in 0 to NB_LANES - 1 loop
-		    data2wr(i) <=
-			din((i + 1) * DATA_WIDTH - 1 downto i * DATA_WIDTH) & din1(i);
-	        end loop;
-	    end if;
-	end if;
+        if rising_edge(clk) then
+            if count_clk = 3 or dval2 = '0' then
+                for i in 0 to NB_LANES - 1 loop
+                    data2wr(i) <=
+                        din((i + 1) * DATA_WIDTH - 1 downto i * DATA_WIDTH) & din1(i);
+                end loop;
+            end if;
+        end if;
     end process;
 
     -- compute address that is going to be used for 4 lanes
     process(clk)
     begin
-	if rising_edge(clk) then
-	    if lval2 = '0' then
-		addr_wr <= (others => '0');
+        if rising_edge(clk) then
+            if lval2 = '0' then
+                addr_wr <= (others => '0');
 
-	    elsif count_clk = 3 then
-		addr_wr <= addr_wr + 1;
+            elsif count_clk = 3 then
+                addr_wr <= addr_wr + 1;
 
-	    end if;
-	end if;
+            end if;
+        end if;
     end process;
 
     -- write at different address for each lane
     msb_addr_wr <= "00" when (count_clk=0) else
-    		   "01" when (count_clk=1) else
-    		   "10" when (count_clk=2) else
-    		   "11";
+                   "01" when (count_clk=1) else
+                   "10" when (count_clk=2) else
+                   "11";
 
     -- switch memory zone at the end of each line
     process(clk)
     begin
-	if rising_edge(clk) then
-	    if dv_par = '1' then
-		if fval1 = '0' then
-		    z_addr_wr <= '0';
+        if rising_edge(clk) then
+            if dv_par = '1' then
+                if fval1 = '0' then
+                    z_addr_wr <= '0';
 
-		elsif lval1 = '0' and lval2 = '1' then
-		    z_addr_wr <= not z_addr_wr;
+                elsif lval1 = '0' and lval2 = '1' then
+                    z_addr_wr <= not z_addr_wr;
 
-		end if;
-	    end if;
-	end if;
+                end if;
+            end if;
+        end if;
     end process;
 
     -- calculate which lane to assign to RAM 0 .. NB_LANES - 1
     process(clk)
-	variable sel : unsigned(NB_LANES_WIDTH-1 - 1 downto 0)
-	    := (others => '0');
+        variable sel : unsigned(NB_LANES_WIDTH-1 - 1 downto 0)
+            := (others => '0');
     begin
-	if rising_edge(clk) then
-	    if lval2 = '0' then
-		sel := (others => '0');
+        if rising_edge(clk) then
+            if lval2 = '0' then
+                sel := (others => '0');
 
-	    elsif count_clk = 3 then
-		sel := sel -1;
+            elsif count_clk = 3 then
+                sel := sel -1;
 
-	    end if;
+            end if;
 
-	    for i in 0 to NB_MEM - 1 loop
-	        if (sel(0)='0') then
-		    sel_wr(i) <= sel(sel'high downto 1) + i;
-	        end if;
-	    end loop;
-	end if;
+            for i in 0 to NB_MEM - 1 loop
+                if (sel(0)='0') then
+                    sel_wr(i) <= sel(sel'high downto 1) + i;
+                end if;
+            end loop;
+        end if;
     end process;
 
     -- final address : zone, address for lane, address
     process(clk)
-    	variable sel : natural;
+        variable sel : natural;
     begin
-    	if rising_edge(clk) then
-   	    mem_addr_wr <= z_addr_wr & msb_addr_wr & addr_wr;
-    	end if;
+        if rising_edge(clk) then
+            mem_addr_wr <= z_addr_wr & msb_addr_wr & addr_wr;
+        end if;
     end process;
 
     -- write enable
     process(clk)
-    	variable sel : natural;
+        variable sel : natural;
     begin
-    	if rising_edge(clk) then
-    	    if (dval2='1') then
-    		    wea <= (others=>'1');
-    	    else
-    		    wea <= (others=>'0');
-    	    end if;
-    	end if;
+        if rising_edge(clk) then
+            if (dval2='1') then
+                    wea <= (others=>'1');
+            else
+                    wea <= (others=>'0');
+            end if;
+        end if;
     end process;
 
     gen_data_wr: for i in 0 to NB_MEM - 1 generate
 
-	-- select data according to the lane
-	process(clk)
-	    variable sel : natural;
-	begin
-	    if rising_edge(clk) then
-		sel := to_integer(sel_wr(i));
-		case msb_addr_wr is
-		    when "00"	=> wr_data(i) <= data2wr(4*sel+0);
-		    when "01"	=> wr_data(i) <= data2wr(4*sel+1);
-		    when "10"	=> wr_data(i) <= data2wr(4*sel+2);
-		    when "11"	=> wr_data(i) <= data2wr(4*sel+3);
-		    when others => wr_data(i) <= (others=>'U');
-		end case;
-	    end if;
-	end process;
+        -- select data according to the lane
+        process(clk)
+            variable sel : natural;
+        begin
+            if rising_edge(clk) then
+                sel := to_integer(sel_wr(i));
+                case msb_addr_wr is
+                    when "00"   => wr_data(i) <= data2wr(4*sel+0);
+                    when "01"   => wr_data(i) <= data2wr(4*sel+1);
+                    when "10"   => wr_data(i) <= data2wr(4*sel+2);
+                    when "11"   => wr_data(i) <= data2wr(4*sel+3);
+                    when others => wr_data(i) <= (others=>'U');
+                end case;
+            end if;
+        end process;
     
     end generate;
 
@@ -390,150 +390,150 @@ begin
     -- counter for cycle : 2 clk / data
     process(clk)
     begin
-	if rising_edge(clk) then
-	    if (dval_rd = '0') then
-		count_rd <= (others=>'0');
-	    else
-		count_rd <= count_rd + 1;
-	    end if;
-	end if;
+        if rising_edge(clk) then
+            if (dval_rd = '0') then
+                count_rd <= (others=>'0');
+            else
+                count_rd <= count_rd + 1;
+            end if;
+        end if;
     end process;
 
     -- compute addr at each clk and for each RAM
     process(clk)
-	variable sel : unsigned(ADDR_WIDTH+1 downto 0) := (others => '0');
+        variable sel : unsigned(ADDR_WIDTH+1 downto 0) := (others => '0');
     begin
-	if rising_edge(clk) then
-	    --if dv_par = '1' then
-	    if count_rd=1 or dval_rd='0' then
-		if lval_rd = '0' then
-		    sel := (others => '0');
+        if rising_edge(clk) then
+            --if dv_par = '1' then
+            if count_rd=1 or dval_rd='0' then
+                if lval_rd = '0' then
+                    sel := (others => '0');
 
-		elsif dval_rd = '1' then
-		    sel := sel + 2*NB_MEM;
+                elsif dval_rd = '1' then
+                    sel := sel + 2*NB_MEM;
 
-		end if;
-	    end if;
+                end if;
+            end if;
 
-	    for i in 0 to NB_MEM - 1 loop
-	    	if (count_rd=1 or dval_rd='0') then
-	    		addr(i) <= sel + 2*i;
-	    	else
-	    		addr(i) <= sel + 2*i + 1;
-	    	end if;
-	    end loop;
-	end if;
+            for i in 0 to NB_MEM - 1 loop
+                if (count_rd=1 or dval_rd='0') then
+                        addr(i) <= sel + 2*i;
+                else
+                        addr(i) <= sel + 2*i + 1;
+                end if;
+            end loop;
+        end if;
     end process;
 
     -- calculate pointer for address and data
     process(clk)
-	variable cnt_lane  : unsigned(ADDR_WIDTH+1 downto 0) := (others => '0');
+        variable cnt_lane  : unsigned(ADDR_WIDTH+1 downto 0) := (others => '0');
     begin
-	if rising_edge(clk) then
-	    if dv_par = '1' then
-		if lval_rd = '0' then
-		    cnt_lane := (others => '0');
-		    sel_mem <= (others => '0');
-		    sel_rd  <= (others => '0');
+        if rising_edge(clk) then
+            if dv_par = '1' then
+                if lval_rd = '0' then
+                    cnt_lane := (others => '0');
+                    sel_mem <= (others => '0');
+                    sel_rd  <= (others => '0');
 
-		elsif dval_rd = '1' then
-		    cnt_lane := cnt_lane + 2*NB_MEM;
+                elsif dval_rd = '1' then
+                    cnt_lane := cnt_lane + 2*NB_MEM;
 
-		    if cnt_lane = 0 then
-		    	sel_mem <= sel_mem - 1;
-		    	sel_rd  <= sel_rd + 1;
-		    end if;
-		end if;
-	    end if;
-	end if;
+                    if cnt_lane = 0 then
+                        sel_mem <= sel_mem - 1;
+                        sel_rd  <= sel_rd + 1;
+                    end if;
+                end if;
+            end if;
+        end if;
     end process;
 
     -- assign reading address to each RAM
     gen_addr_rd: for i in 0 to NB_MEM - 1 generate
-	process(clk)
-	    variable sel : unsigned(NB_LANES_WIDTH-2 - 1 downto 0);
-	begin
-	    if rising_edge(clk) then
-		--if (dv_par = '1') then
-		    sel := sel_mem + i;
-		    addr_rd(i) <= addr(to_integer(sel));
-		--end if;
-	    end if;
-	end process;
+        process(clk)
+            variable sel : unsigned(NB_LANES_WIDTH-2 - 1 downto 0);
+        begin
+            if rising_edge(clk) then
+                --if (dv_par = '1') then
+                    sel := sel_mem + i;
+                    addr_rd(i) <= addr(to_integer(sel));
+                --end if;
+            end if;
+        end process;
     end generate;
 
 
     -- update zone when a new line starts
     process(clk)
     begin
-	if rising_edge(clk) then
-	    if (dv_par = '1') then
-		if lval_rd = '0' then
-		    --z_addr_rd <= not(z_addr_wr);
-		    z_addr_rd <= z_addr_wr;
-		end if;
-	    end if;
-	end if;
+        if rising_edge(clk) then
+            if (dv_par = '1') then
+                if lval_rd = '0' then
+                    --z_addr_rd <= not(z_addr_wr);
+                    z_addr_rd <= z_addr_wr;
+                end if;
+            end if;
+        end if;
     end process;
 
     gen_mem_addr_rd: for i in 0 to NB_MEM - 1 generate
-	mem_addr_rd(i) <= z_addr_rd & addr_rd(i);
+        mem_addr_rd(i) <= z_addr_rd & addr_rd(i);
     end generate;
 
     -- latency of RAM reading
     process(clk)
     begin
-	if rising_edge(clk) then
-	    if dv_par = '1' then
-		sel_rd1 <= sel_rd;
-		sel_rd2 <= sel_rd1;
-		count_rd1 <= count_rd;
-	    end if;
-	end if;
+        if rising_edge(clk) then
+            if dv_par = '1' then
+                sel_rd1 <= sel_rd;
+                sel_rd2 <= sel_rd1;
+                count_rd1 <= count_rd;
+            end if;
+        end if;
     end process;
 
     -- assign data output of each RAM to 1 output
     gen_out: for i in 0 to NB_MEM - 1 generate
 
-    	-- latch data on first clk
-    	process(clk)
-    	begin
-    	    if rising_edge(clk) then
-    		--if (count_rd = 1) then
-    		if count_rd1 = 1 then
-    		    data2rd(i) <= rd_data(i);
-    		end if;
-    	    end if;
-    	end process;
+        -- latch data on first clk
+        process(clk)
+        begin
+            if rising_edge(clk) then
+                --if (count_rd = 1) then
+                if count_rd1 = 1 then
+                    data2rd(i) <= rd_data(i);
+                end if;
+            end if;
+        end process;
 
-    	-- latch data read on each clk
-    	process(clk)
- 	    variable sel : unsigned(NB_LANES_WIDTH-2 - 1 downto 0);
- 	begin
- 	    if rising_edge(clk) then
- 		if (dv_par = '0') then
- 		    --sel := sel_rd + i;
- 		    sel := sel_rd2 + i;
- 		    data2out(4 * i + 0) <= data2rd(to_integer(sel))(1 * DATA_WIDTH - 1 downto 0 * DATA_WIDTH);
- 		    data2out(4 * i + 1) <= data2rd(to_integer(sel))(2 * DATA_WIDTH - 1 downto 1 * DATA_WIDTH);
- 		    data2out(4 * i + 2) <= rd_data(to_integer(sel))(1 * DATA_WIDTH - 1 downto 0 * DATA_WIDTH);
- 		    data2out(4 * i + 3) <= rd_data(to_integer(sel))(2 * DATA_WIDTH - 1 downto 1 * DATA_WIDTH);
- 		end if;
- 	    end if;
-    	end process;
+        -- latch data read on each clk
+        process(clk)
+            variable sel : unsigned(NB_LANES_WIDTH-2 - 1 downto 0);
+        begin
+            if rising_edge(clk) then
+                if (dv_par = '0') then
+                    --sel := sel_rd + i;
+                    sel := sel_rd2 + i;
+                    data2out(4 * i + 0) <= data2rd(to_integer(sel))(1 * DATA_WIDTH - 1 downto 0 * DATA_WIDTH);
+                    data2out(4 * i + 1) <= data2rd(to_integer(sel))(2 * DATA_WIDTH - 1 downto 1 * DATA_WIDTH);
+                    data2out(4 * i + 2) <= rd_data(to_integer(sel))(1 * DATA_WIDTH - 1 downto 0 * DATA_WIDTH);
+                    data2out(4 * i + 3) <= rd_data(to_integer(sel))(2 * DATA_WIDTH - 1 downto 1 * DATA_WIDTH);
+                end if;
+            end if;
+        end process;
 
-    	-- data for output
-    	process(clk)
- 	begin
- 	    if rising_edge(clk) then
- 		if dv_par = '1' then
- 		    dout((4 * i + 0 + 1) * DATA_WIDTH - 1 downto (4 * i + 0) * DATA_WIDTH) <= data2out(4 * i + 0);
- 		    dout((4 * i + 1 + 1) * DATA_WIDTH - 1 downto (4 * i + 1) * DATA_WIDTH) <= data2out(4 * i + 1);
- 		    dout((4 * i + 2 + 1) * DATA_WIDTH - 1 downto (4 * i + 2) * DATA_WIDTH) <= data2out(4 * i + 2);
- 		    dout((4 * i + 3 + 1) * DATA_WIDTH - 1 downto (4 * i + 3) * DATA_WIDTH) <= data2out(4 * i + 3);
- 		end if;
- 	    end if;
-    	end process;
+        -- data for output
+        process(clk)
+        begin
+            if rising_edge(clk) then
+                if dv_par = '1' then
+                    dout((4 * i + 0 + 1) * DATA_WIDTH - 1 downto (4 * i + 0) * DATA_WIDTH) <= data2out(4 * i + 0);
+                    dout((4 * i + 1 + 1) * DATA_WIDTH - 1 downto (4 * i + 1) * DATA_WIDTH) <= data2out(4 * i + 1);
+                    dout((4 * i + 2 + 1) * DATA_WIDTH - 1 downto (4 * i + 2) * DATA_WIDTH) <= data2out(4 * i + 2);
+                    dout((4 * i + 3 + 1) * DATA_WIDTH - 1 downto (4 * i + 3) * DATA_WIDTH) <= data2out(4 * i + 3);
+                end if;
+            end if;
+        end process;
 
     end generate;
 
@@ -545,33 +545,33 @@ begin
     -- writing pointer
     process(clk)
     begin
-	if rising_edge(clk) then
-	    if (dv_par = '1') then
-		if fval_in = '0' and read_sync = '0' then
-		    addr_wr_sync <= (others => '0');
+        if rising_edge(clk) then
+            if (dv_par = '1') then
+                if fval_in = '0' and read_sync = '0' then
+                    addr_wr_sync <= (others => '0');
 
-		elsif fval_in = '1' then
-		    addr_wr_sync <= addr_wr_sync + 1;
+                elsif fval_in = '1' then
+                    addr_wr_sync <= addr_wr_sync + 1;
 
-		end if;
-	    end if;
-	end if;
+                end if;
+            end if;
+        end if;
     end process;
 
     -- reading pointer
     process(clk)
     begin
-	if rising_edge(clk) then
-	    if dv_par = '1' then
-		if read_sync = '0' then
-		    addr_rd_sync <= (others => '0');
+        if rising_edge(clk) then
+            if dv_par = '1' then
+                if read_sync = '0' then
+                    addr_rd_sync <= (others => '0');
 
-		else
-		    addr_rd_sync <= addr_rd_sync + 1;
+                else
+                    addr_rd_sync <= addr_rd_sync + 1;
 
-		end if;
-	    end if;
-	end if;
+                end if;
+            end if;
+        end if;
     end process;
 
     wea_sync <= (others => fval_in) when (dv_par='1') else (others=>'0');
@@ -580,20 +580,20 @@ begin
     -- start read after the 1rst line of frame and stop when pointers are equal
     process(clk)
     begin
-	if rising_edge(clk) then
-	    if dv_par = '1' then
-		if lval_in = '0' and fval_in = '1' then
-		    read_sync <= '1';
+        if rising_edge(clk) then
+            if dv_par = '1' then
+                if lval_in = '0' and fval_in = '1' then
+                    read_sync <= '1';
 
-		elsif addr_wr_sync = addr_rd_sync then
-		    read_sync <= '0';
+                elsif addr_wr_sync = addr_rd_sync then
+                    read_sync <= '0';
 
-		end if;
-		--
-		read_sync1 <= read_sync;
-		read_sync2 <= read_sync1;
-	    end if;
-	end if;
+                end if;
+                --
+                read_sync1 <= read_sync;
+                read_sync2 <= read_sync1;
+            end if;
+        end if;
     end process;
 
     -- mask ouput of RAM when they are not valid
@@ -602,33 +602,33 @@ begin
     dval_rd <= dout_sync(0) and read_sync1 and read_sync;
 
     ram_sync0 : entity work.ram_sdp_reg
-	generic map (
-	    DATA_WIDTH => 2,
-	    ADDR_WIDTH => ADDR_WIDTH_SYNC )
-	port map (
-	    clka   => clk,
-	    ena	   => '1',
-	    wea	   => wea_sync,
-	    addra  => std_logic_vector(addr_wr_sync),
-	    dina   => din_sync,
-	    clkb   => clk,
-	    enb	   => '1',
-	    addrb  => std_logic_vector(addr_rd_sync),
-	    reg_ce => dv_par,
-	    doutb  => dout_sync );
+        generic map (
+            DATA_WIDTH => 2,
+            ADDR_WIDTH => ADDR_WIDTH_SYNC )
+        port map (
+            clka   => clk,
+            ena    => '1',
+            wea    => wea_sync,
+            addra  => std_logic_vector(addr_wr_sync),
+            dina   => din_sync,
+            clkb   => clk,
+            enb    => '1',
+            addrb  => std_logic_vector(addr_rd_sync),
+            reg_ce => dv_par,
+            doutb  => dout_sync );
 
 --  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 --  output (delay due to RAM latency and address calculation)
 
     process(clk)
     begin
-	if rising_edge(clk) then
-	    if (dv_par = '1') then
-		fval_delay <= fval_delay(fval_delay'high - 1 downto 0) & fval_rd;
-		dval_delay <= dval_delay(dval_delay'high - 1 downto 0) & dval_rd;
-		lval_delay <= lval_delay(lval_delay'high - 1 downto 0) & lval_rd;
-	    end if;
-	end if;
+        if rising_edge(clk) then
+            if (dv_par = '1') then
+                fval_delay <= fval_delay(fval_delay'high - 1 downto 0) & fval_rd;
+                dval_delay <= dval_delay(dval_delay'high - 1 downto 0) & dval_rd;
+                lval_delay <= lval_delay(lval_delay'high - 1 downto 0) & lval_rd;
+            end if;
+        end if;
     end process;
 
     fval_out <= fval_delay(fval_delay'high);
@@ -641,21 +641,21 @@ begin
     -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     gen_all_mem: for i in 0 to NB_MEM - 1 generate
-	ram_data0 : entity work.ram_sdp_reg
-	    generic map (
-		DATA_WIDTH => 2*DATA_WIDTH,
-		ADDR_WIDTH => ADDR_WIDTH + 3 )
-	    port map (
-		clka   => clk,
-		ena    => '1',
-		wea    => wea,
-		addra  => std_logic_vector(mem_addr_wr),
-		dina   => wr_data(i),
-		clkb   => clk,
-		enb    => '1',
-		addrb  => std_logic_vector(mem_addr_rd(i)),
-		reg_ce => '1',
-		doutb  => rd_data(i) );
+        ram_data0 : entity work.ram_sdp_reg
+            generic map (
+                DATA_WIDTH => 2*DATA_WIDTH,
+                ADDR_WIDTH => ADDR_WIDTH + 3 )
+            port map (
+                clka   => clk,
+                ena    => '1',
+                wea    => wea,
+                addra  => std_logic_vector(mem_addr_wr),
+                dina   => wr_data(i),
+                clkb   => clk,
+                enb    => '1',
+                addrb  => std_logic_vector(mem_addr_rd(i)),
+                reg_ce => '1',
+                doutb  => rd_data(i) );
     end generate;
 
 end RTL;

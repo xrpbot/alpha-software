@@ -45,7 +45,7 @@ begin
 	generic map (STAGES => PRESCALE)
 	port map (clk_in => clk, clk_out => vis_clk);
 
-    pmod_vis: process(vis_clk, vis_addr, value)
+    pmod_vis: process (vis_clk, vis_addr, value)
 
 	variable vis_cnt_v : unsigned(7 downto 0);
 

@@ -48,6 +48,8 @@ entity axihp_writer is
 	data_in		: in std_logic_vector (DATA_WIDTH - 1 downto 0);
 	data_empty	: in std_logic;
 	--
+	write_strobe	: in std_logic_vector (7 downto 0);
+	--
 	writer_error	: out std_logic;
 	writer_active	: out std_logic_vector (3 downto 0);
 	writer_unconf	: out std_logic_vector (3 downto 0) );
@@ -82,7 +84,7 @@ begin
 
     addr_en <= awvalid and m_axi_wi.awready;
 
-    addr_proc : process(m_axi_aclk, m_axi_wi)
+    addr_proc : process (m_axi_aclk, m_axi_wi)
     begin
 	if rising_edge(m_axi_aclk) then
 	    if m_axi_areset_n = '0' then	-- reset
@@ -90,7 +92,7 @@ begin
 
 	    elsif awvalid = '0' then		-- idle phase
 		if enable = '1' and		-- writer enabled
-		    addr_empty = '0' and	-- fifo not empty
+		    addr_empty = '0' and	-- address available
 		    active(3) = '0' then	-- below max
 		    awvalid <= '1';
 		end if;
@@ -129,7 +131,7 @@ begin
 
     data_en <= wvalid and m_axi_wi.wready;
 
-    write_proc : process(m_axi_aclk, m_axi_wi)
+    write_proc : process (m_axi_aclk, m_axi_wi)
     begin
 	if rising_edge(m_axi_aclk) then
 	    if m_axi_areset_n = '0' then	-- reset
@@ -163,7 +165,7 @@ begin
 
     resp_en <= bready and m_axi_wi.bvalid;
 
-    bresp_proc : process(m_axi_aclk)
+    bresp_proc : process (m_axi_aclk)
     begin
 	if rising_edge(m_axi_aclk) then
 	    if m_axi_areset_n = '0' then	-- reset
@@ -192,7 +194,7 @@ begin
     -- In Flight Accounting
     --------------------------------------------------------------------
 
-    active_proc : process(m_axi_aclk)
+    active_proc : process (m_axi_aclk)
     begin
 	if rising_edge(m_axi_aclk) then
 	    if addr_en = '1' and
@@ -207,7 +209,7 @@ begin
 	end if;
     end process;
 
-    unconf_proc : process(m_axi_aclk)
+    unconf_proc : process (m_axi_aclk)
     begin
 	if rising_edge(m_axi_aclk) then
 	    if addr_en = '1' and
@@ -237,7 +239,7 @@ begin
 
     m_axi_wo.awburst <= "01";
     m_axi_wo.awsize <= "11";
-    m_axi_wo.wstrb <= x"FF";
+    m_axi_wo.wstrb <= write_strobe;
 
     m_axi_wo.awprot <= "000";
 

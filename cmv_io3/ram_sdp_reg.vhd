@@ -37,6 +37,7 @@ entity ram_sdp_reg is
 			:= (others =>'0') );
 end entity;
 
+
 architecture RTL of ram_sdp_reg is
 
     type mem is array (2 ** ADDR_WIDTH - 1 downto 0) of 
@@ -50,7 +51,7 @@ architecture RTL of ram_sdp_reg is
 begin
 
     -- write
-    process(clka)
+    process (clka)
     begin
 	if rising_edge(clka) then
 	    if ena = '1' then
@@ -62,7 +63,7 @@ begin
     end process;
 
     -- read
-    process(clkb)
+    process (clkb)
     begin
 	if rising_edge(clkb) then
 	    if enb = '1' then
@@ -70,8 +71,8 @@ begin
 	    end if;
 	end if;
     end process;
- 
-    process(clkb)
+
+    process (clkb)
     begin
 	if rising_edge(clkb) then
 	    if reg_ce = '1' then

@@ -1,9 +1,9 @@
 ----------------------------------------------------------------------------
---  data_sync.vhd
---	Data Synchronizer (N-Flop)
---	Version 1.1
+--  pulse_sync.vhd
+--	Pulse Synchronizer (N-Flop)
+--	Version 1.2
 --
---  Copyright (C) 2013 H.Poetzl
+--  Copyright (C) 2013-2014 H.Poetzl
 --
 --	This program is free software: you can redistribute it and/or
 --	modify it under the terms of the GNU General Public License
@@ -19,9 +19,10 @@ use IEEE.numeric_std.ALL;
 use work.vivado_pkg.ALL;	-- Vivado Attributes
 
 
-entity data_sync is
+entity pulse_sync is
     generic (
-	INIT_OUT : std_logic := '0';
+	ACTIVE_IN : std_logic := '1';
+	ACTIVE_OUT : std_logic := '1';
 	STAGES : natural := 2
     );
     port (
@@ -29,15 +30,15 @@ entity data_sync is
 	async_in : in std_logic;		-- Async Input
 	sync_out : out std_logic		-- Sync Output
     );
-end entity data_sync;
+end entity pulse_sync;
 
 
-architecture RTL of data_sync is
+architecture RTL of pulse_sync is
 
     attribute KEEP_HIERARCHY of RTL : architecture is "TRUE";
 
     signal shift : std_logic_vector (STAGES downto 1)
-	:= (others => INIT_OUT);
+	:= (others => not ACTIVE_IN);
 
     attribute REGISTER_BALANCING of shift : signal is "NO";
     attribute REGISTER_DUPLICATION of shift : signal is "NO";
@@ -47,15 +48,25 @@ architecture RTL of data_sync is
 begin
 
     sync_proc : process (clk, async_in)
+	variable out_v : std_logic := not ACTIVE_OUT;
+	variable sync_v : std_logic := not ACTIVE_IN;
     begin
 
 	if rising_edge(clk) then
+	    if sync_v = not ACTIVE_IN and
+		shift(STAGES) = ACTIVE_IN then
+		out_v := ACTIVE_OUT;
+	    else
+		out_v := not ACTIVE_OUT;
+	    end if;
+
+	    sync_v := shift(STAGES);
 	    shift <= shift(STAGES - 1 downto 1) & async_in;
 	end if;
 
-    end process;
+	sync_out <= out_v;
 
-    sync_out <= shift(STAGES);
+    end process;
 
 end RTL;
 

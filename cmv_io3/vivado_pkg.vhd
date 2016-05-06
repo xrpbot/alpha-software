@@ -34,6 +34,7 @@ package vivado_pkg is
 
     attribute BEL : string;
 
+    attribute BLACK_BOX : string;
 
     attribute BUFFER_TYPE : string;
 
@@ -98,6 +99,8 @@ package vivado_pkg is
 
 
     attribute FSM_SAFE_STATE : string;
+
+    attribute GATED_CLOCK : string;
 
     attribute HIODELAY_GROUP : string;
 
@@ -216,6 +219,19 @@ package vivado_pkg is
     --  Values are FALSE, TRUE, YES and NO.
 
 
+    attribute RAM_STYLE : string;
+
+    --	RAM_STYLE instructs the Vivado synthesis tool on how to
+    --	infer memory.
+    --	By default, the tool selects which RAM to infer, based
+    --	upon heuristics that give the best results for most designs.
+    --	Place this attribute on the array declared for the RAM.
+    --
+    --	Values are:
+    --	block:	Instructs the tool to infer RAMB type components
+    --	distributed:	Instructs the tool to infer the LUT RAMs.
+
+
     attribute REGISTER_BALANCING : string;
 
     --  YES, NO, FORWARD, BACKWARD
@@ -229,6 +245,20 @@ package vivado_pkg is
     attribute RLOC: string;
 
     attribute RLOC_ORIGIN: string;
+
+
+    attribute ROM_STYLE : string;
+
+    --	ROM_STYLE instructs the Vivado synthesis tool on how to
+    --	infer ROM memory.
+    --	By default, the tool selects which ROM to infer, based
+    --	upon heuristics that give the best results for most designs.
+    --	Place this attribute on the array declared for the ROM.
+    --
+    --	Values are:
+    --	block:	Instructs the tool to infer RAMB type components
+    --	distributed:	Instructs the tool to infer the LUT ROMs.
+
 
     attribute RPM_GRID : string;
 
@@ -268,7 +298,18 @@ package vivado_pkg is
 
     attribute U_SET : string;
 
+    attribute USE_DSP48 : string;
 
+    --  USE_DSP48 instructs the synthesis tool how to deal with 
+    --  synthesis arithmetic structures.
+    --
+    --  By default, mults, mult-add, mult-sub, mult-accumulate type 
+    --  structures go into DSP48 blocks.
+    --  Adders, subtractors, and accumulators can also go into these
+    --  blocks but by default, are implemented with the fabric instead
+    --  of with DSP48 blocks.
+    --
+    --  values are YES and NO.
 
 end package;
 

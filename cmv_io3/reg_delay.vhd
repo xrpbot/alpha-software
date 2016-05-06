@@ -189,7 +189,7 @@ begin
     -- AXI Read/Write
     --------------------------------------------------------------------
 
-    reg_rwseq_proc : process(
+    reg_rwseq_proc : process (
 	s_axi_aclk, s_axi_areset_n,
 	s_axi_ri, s_axi_wi, axi_dly_oval )
 

@@ -59,7 +59,7 @@ architecture RTL of axi_split4 is
 
 begin
 
-    read_proc : process(s_axi_aclk)
+    read_proc : process (s_axi_aclk)
 	variable bits_v : unsigned(1 downto 0) := (others => '0');
     begin
 	if rising_edge(s_axi_aclk) then
@@ -83,7 +83,7 @@ begin
     end process;
 
 
-    write_proc : process(s_axi_aclk)
+    write_proc : process (s_axi_aclk)
 	variable bits_v : unsigned(1 downto 0) := (others => '0');
     begin
 	if rising_edge(s_axi_aclk) then

@@ -36,7 +36,7 @@ end entity sync_div;
 architecture RTL of sync_div is
 begin
 
-    divide_proc : process(clk_in)
+    divide_proc : process (clk_in)
 
 	variable count : natural range 0 to HRATIO - 1;
 

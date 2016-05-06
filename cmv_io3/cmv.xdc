@@ -12,7 +12,7 @@ create_clock -period 8.333 -name lvds_outclk -waveform {0.000 4.1667} [get_ports
 # set_input_delay -clock pll_lvds_clk -min  2.0 [get_ports cmv_lvds_ctrl*] -clock_fall -add_delay
 
 # set_input_delay -clock pll_lvds_clk -network_latency_included 3.333 [get_ports cmv_lvds_data*]
-set_property PACKAGE_PIN E21 [get_ports cmv_clk_in]
+set_property PACKAGE_PIN E21 [get_ports cmv_clk]
 set_property PACKAGE_PIN R7 [get_ports cmv_t_exp1]
 set_property PACKAGE_PIN U7 [get_ports cmv_t_exp2]
 set_property PACKAGE_PIN D21 [get_ports cmv_frame_req]
@@ -23,7 +23,7 @@ set_property PACKAGE_PIN T19 [get_ports cmv_sys_res_n]
 
 # set_max_delay -from [get_ports cmv_lvds_data*] 0.5
 set_property IOSTANDARD LVCMOS33 [get_ports cmv_t_*]
-set_property IOSTANDARD LVCMOS25 [get_ports cmv_clk_in]
+set_property IOSTANDARD LVCMOS25 [get_ports cmv_clk]
 set_property IOSTANDARD LVCMOS25 [get_ports cmv_sys_res_n]
 set_property IOSTANDARD LVCMOS25 [get_ports cmv_frame_req]
 

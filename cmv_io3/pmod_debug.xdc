@@ -14,7 +14,8 @@ set_property SLEW SLOW [get_ports pmod_jc*]
 
 create_pblock pblock_pmod_jc
 add_cells_to_pblock [get_pblocks pblock_pmod_jc] [get_cells pmod_dbg_jc_inst]
-resize_pblock [get_pblocks pblock_pmod_jc] -add {SLICE_X0Y9:SLICE_X3Y16}
+resize_pblock [get_pblocks pblock_pmod_jc] -add {SLICE_X54Y0:SLICE_X57Y9}
+#resize_pblock [get_pblocks pblock_pmod_jc] -add {SLICE_X54Y10:SLICE_X57Y19}
 
 set_property PACKAGE_PIN V7 [get_ports {pmod_jdm[0]}]
 set_property PACKAGE_PIN W7 [get_ports {pmod_jdm[1]}]
@@ -31,7 +32,8 @@ set_property SLEW SLOW [get_ports pmod_jd*]
 
 create_pblock pblock_pmod_jd
 add_cells_to_pblock [get_pblocks pblock_pmod_jd] [get_cells pmod_dbg_jd_inst]
-resize_pblock [get_pblocks pblock_pmod_jd] -add {SLICE_X0Y1:SLICE_X3Y8}
+resize_pblock [get_pblocks pblock_pmod_jd] -add {SLICE_X58Y0:SLICE_X61Y9}
+#resize_pblock [get_pblocks pblock_pmod_jd] -add {SLICE_X58Y10:SLICE_X61Y19}
 
 
 set_property DONT_TOUCH TRUE [get_cells pmod_dbg*]
@@ -39,4 +41,8 @@ set_property DONT_TOUCH TRUE [get_cells pmod_dbg*]
 create_pblock pblock_pmod
 add_cells_to_pblock [get_pblocks pblock_pmod] [get_cells pmod_v0*]
 add_cells_to_pblock [get_pblocks pblock_pmod] [get_cells pmod_v1*]
-resize_pblock [get_pblocks pblock_pmod] -replace -add {SLICE_X4Y1:SLICE_X9Y16}
+resize_pblock [get_pblocks pblock_pmod] -add {SLICE_X62Y0:SLICE_X69Y9}
+#resize_pblock [get_pblocks pblock_pmod] -add {SLICE_X62Y10:SLICE_X69Y19}
+
+
+set_false_path -to [get_pins pmod_v*/D]

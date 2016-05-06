@@ -59,7 +59,7 @@ architecture RTL of axi_split is
 
 begin
 
-    split_proc : process(s_axi_aclk)
+    split_proc : process (s_axi_aclk)
 
 	type arb_state is ( idle_s, sel0_s, sel1_s );
 

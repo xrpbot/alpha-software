@@ -45,7 +45,7 @@ architecture RTL of axi_lite is
 
 begin
 
-    id_proc : process(s_axi_aclk)
+    id_proc : process (s_axi_aclk)
 
 	variable rwid : std_logic_vector (11 downto 0);
 

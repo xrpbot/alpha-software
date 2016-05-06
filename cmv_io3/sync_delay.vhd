@@ -1,7 +1,7 @@
 ----------------------------------------------------------------------------
---  data_sync.vhd
---	Data Synchronizer (N-Flop)
---	Version 1.1
+--  sync_delay.vhd
+--	N-Stage Synchronous Delay
+--	Version 1.0
 --
 --  Copyright (C) 2013 H.Poetzl
 --
@@ -19,25 +19,30 @@ use IEEE.numeric_std.ALL;
 use work.vivado_pkg.ALL;	-- Vivado Attributes
 
 
-entity data_sync is
+entity sync_delay is
     generic (
-	INIT_OUT : std_logic := '0';
-	STAGES : natural := 2
+	STAGES : natural := 2;
+	DATA_WIDTH : natural := 1;
+	INIT_OUT : std_logic := '0'
     );
     port (
-	clk : in std_logic;			-- Target Clock
-	async_in : in std_logic;		-- Async Input
-	sync_out : out std_logic		-- Sync Output
+	clk : in std_logic;
+	data_in : in std_logic_vector (DATA_WIDTH - 1 downto 0);
+	data_out : out std_logic_vector (DATA_WIDTH - 1 downto 0)
     );
-end entity data_sync;
+
+end entity sync_delay;
 
 
-architecture RTL of data_sync is
+architecture RTL of sync_delay is
 
     attribute KEEP_HIERARCHY of RTL : architecture is "TRUE";
 
-    signal shift : std_logic_vector (STAGES downto 1)
-	:= (others => INIT_OUT);
+    type delay_t is array (natural range <>) of
+	std_logic_vector (DATA_WIDTH - 1 downto 0);
+
+    signal shift : delay_t (STAGES downto 1)
+	:= (others => (others => INIT_OUT));
 
     attribute REGISTER_BALANCING of shift : signal is "NO";
     attribute REGISTER_DUPLICATION of shift : signal is "NO";
@@ -46,16 +51,19 @@ architecture RTL of data_sync is
 
 begin
 
-    sync_proc : process (clk, async_in)
+    delay_proc : process (clk, data_in)
+	variable sync_v : std_logic_vector (DATA_WIDTH - 1 downto 0)
+	    := (others => INIT_OUT);
     begin
 
 	if rising_edge(clk) then
-	    shift <= shift(STAGES - 1 downto 1) & async_in;
+	    sync_v := shift(STAGES);
+	    shift <= shift(STAGES - 1 downto 1) & data_in;
 	end if;
 
-    end process;
+	data_out <= sync_v;
 
-    sync_out <= shift(STAGES);
+    end process;
 
 end RTL;
 

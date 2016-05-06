@@ -1,9 +1,9 @@
 ----------------------------------------------------------------------------
---  addr_gen.vhd
---	Address Generator
---	Version 1.5
+--  addr_scan.vhd
+--	Scan Address Generator
+--	Version 1.4
 --
---  Copyright (C) 2013 H.Poetzl
+--  Copyright (C) 2013-2014 H.Poetzl
 --
 --	This program is free software: you can redistribute it and/or
 --	modify it under the terms of the GNU General Public License
@@ -20,38 +20,39 @@ use IEEE.numeric_std.ALL;
 use work.vivado_pkg.ALL;	-- Vivado Attributes
 
 
-entity addr_gen is
+entity addr_scan is
     generic (
 	COUNT_WIDTH : natural := 12;
 	ADDR_WIDTH : natural := 32 );
     port (
 	clk	: in std_logic;			-- base clock
-	load	: in std_logic;			-- load
+	reset	: in std_logic;			-- reset
 	enable	: in std_logic;			-- enable
 	--
-	addr_in : in std_logic_vector (ADDR_WIDTH - 1 downto 0);
+	evenodd : in std_logic;
 	--
-	col_inc : in std_logic_vector (ADDR_WIDTH - 1 downto 0);
+	addr_min : in std_logic_vector (ADDR_WIDTH - 1 downto 0);
+	addr_inc : in std_logic_vector (ADDR_WIDTH - 1 downto 0);
+	addr_max : in std_logic_vector (ADDR_WIDTH - 1 downto 0);
+	--
 	col_cnt : in std_logic_vector (COUNT_WIDTH - 1 downto 0);
+	row_add : in std_logic_vector (ADDR_WIDTH - 1 downto 0);
 	--
-	row_inc : in std_logic_vector (ADDR_WIDTH - 1 downto 0);
-	--
-	pattern : in std_logic_vector (ADDR_WIDTH - 1 downto 0);
+	row_cnt : in std_logic_vector (COUNT_WIDTH - 1 downto 0);
+	frm_add : in std_logic_vector (ADDR_WIDTH - 1 downto 0);
 	--
 	addr	: out std_logic_vector (ADDR_WIDTH - 1 downto 0);
 	match	: out std_logic
     );
 
-end entity addr_gen;
+end entity addr_scan;
 
-
-architecture RTL of addr_gen is
+architecture RTL of addr_scan is
 
     attribute KEEP_HIERARCHY of RTL : architecture is "TRUE";
 
-    signal ccnt : unsigned(COUNT_WIDTH downto 0) := (others => '0');
-
-    alias ccnt_high : std_logic is ccnt(COUNT_WIDTH);
+    signal ccnt : unsigned(col_cnt'range);
+    signal rcnt : unsigned(row_cnt'range);
 
     signal pat_c : std_logic_vector (47 downto 0)
 	:= (others => '0');
@@ -70,39 +71,62 @@ architecture RTL of addr_gen is
 
     signal detect : std_logic;
     signal active : std_logic;
-    signal first : std_logic;
+    signal load : std_logic := '1';
+
+    signal do_row : boolean := false;
+    signal do_frm : boolean := false;
 
 begin
 
-    ccnt_proc: process (clk)
+    addr_proc: process (clk)
     begin
-	if rising_edge(clk) then
-	    if load = '1' then
-		ccnt(col_cnt'range) <= unsigned(col_cnt);
-		ccnt_high <= '0';
-		first <= '1';
+	if reset = '1' then				-- reset
+	    ccnt <= (0 => '1', others => '0');
+	    rcnt <= (0 => '0', others => '0');
 
-	    elsif enable = '1' then
-		if ccnt_high = '1' then
-		    ccnt(col_cnt'range) <= unsigned(col_cnt);
-		    ccnt_high <= '0';
+	    do_row <= false;
+	    do_frm <= false;
+	    load <= '1';
+
+	elsif rising_edge(clk) then
+	    if enable = '1' then			-- enabled
+		if ccnt = unsigned(col_cnt) then
+		    ccnt <= (0 => '0', others => '0');
+
+		    if rcnt = unsigned(row_cnt) then
+			rcnt <= (0 => '0', others => '0');
+			do_row <= false;
+			do_frm <= true;
+
+		    else
+			rcnt <= rcnt + "1";
+			do_row <= true;
+			do_frm <= false;
+
+		    end if;
 
 		else
-		    ccnt <= ccnt - "1";
+		    ccnt <= ccnt + "1";
+		    do_row <= false;
+		    do_frm <= false;
 
 		end if;
-		first <= '0';
 	    end if;
+
+	    load <= '0';
 	end if;
     end process;
 
-    pat_c(addr_in'range) <= addr_in
-	when load = '1' else pattern;
+    pat_c(addr_max'range) <= addr_min
+	when (evenodd xor load) = '0'
+	else addr_max;
 
-    ab_in(col_inc'range) <= col_inc
-	when ccnt_high = '0' else row_inc;
+    ab_in(addr_inc'range) <=
+	frm_add when do_frm else
+	row_add when do_row else
+	addr_inc;
 
-    opmode <= "0110000" when load = '1' else "0100011";
+    opmode <= "0100011" when load = '0' else "0110000";
 
     DSP48_addr_inst : entity work.dsp48_wrap
 	generic map (
@@ -120,12 +144,13 @@ begin
 	    ALUMODE => "0000",			-- 7-bit input: Operation mode input
 	    CARRYIN => '0',			-- 1-bit input: Carry input signal
 	    CEP => active,			-- 1-bit input: CE input for PREG
+	    RSTP => reset,			-- 1-bit input: Reset input for PREG
 	    --
 	    PATTERNDETECT => detect,		-- Match indicator P[47:0] with pattern
 	    P => p_out );			-- 48-bit output: Primary data output
 
-    match <= detect and not first;
-    active <= load or enable;
+    match <= (not reset) and detect;
+    active <= (not reset) and (not detect) and (enable or load);
     addr <= p_out(addr'range);
 
 end RTL;
