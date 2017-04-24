@@ -127,7 +127,7 @@ architecture RTL of pixel_remap is
     end function;
 
     constant NB_LANES_WIDTH	: positive := log2(NB_LANES);
-    constant SIZE_LINE		: positive := 4096 / (NB_LANES*2);
+    constant SIZE_LINE		: positive := 2048 / (NB_LANES*2);
     constant ADDR_WIDTH		: positive := log2(SIZE_LINE);
     constant ADDR_WIDTH_SYNC	: positive := 10;
     

@@ -25,7 +25,7 @@ entity fifo_chop is
     port (
 	par_clk		: in  std_logic;
 	par_enable	: in  std_logic;
-	par_data	: in  par12_a (31 downto 0);
+	par_data	: in  par12_a (15 downto 0);
 	--
 	par_ctrl	: in  std_logic_vector (11 downto 0);
 	--
@@ -46,14 +46,14 @@ architecture RTL of fifo_chop is
 begin
 
     fifo_proc : process (par_clk)
-	variable shift_v : std_logic_vector (32 * 12 - 1 downto 0);
-	variable shift_cnt_v : std_logic_vector (6 downto 0)
+	variable shift_v : std_logic_vector (16 * 12 - 1 downto 0);
+	variable shift_cnt_v : std_logic_vector (3 downto 0)
 	    := (0 => '0', others => '1');
 	variable ctrl_v : std_logic_vector (11 downto 0);
     begin
 	if rising_edge(par_clk) then
 	    if par_enable = '1' then
-		for I in 31 downto 0 loop
+		for I in 15 downto 0 loop
 		    shift_v(I*12 + 11 downto I*12) := par_data(I);
 		    -- shift_v(I*12 + 11 downto I*12 + 4) :=
 			-- std_logic_vector(to_unsigned(I, 8));
@@ -61,7 +61,7 @@ begin
 		shift_cnt_v := (0 => '0', others => '1');
 		ctrl_v := par_ctrl;
 	    else
-		for I in 0 to 4 loop
+		for I in 0 to 1 loop
 		    if shift_cnt_v(0) = '1' then
 			shift_v(I * 64 + 63 downto I * 64) :=
 			    shift_v((I + 1) * 64 + 63 downto (I + 1) * 64);
