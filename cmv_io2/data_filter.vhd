@@ -16,12 +16,6 @@ library IEEE;
 use IEEE.std_logic_1164.ALL;
 use IEEE.numeric_std.ALL;
 
-library unisim;
-use unisim.VCOMPONENTS.ALL;
-
-library unimacro;
-use unimacro.VCOMPONENTS.ALL;
-
 use work.vivado_pkg.ALL;	-- Vivado Attributes
 
 

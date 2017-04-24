@@ -1,0 +1,7 @@
+*.o
+work-obj93.cf
+/testbench
+input.dat
+output.dat
+*.vcd
+out.png
