@@ -173,8 +173,8 @@ architecture RTL_PACKED of fifo_chop is
 begin
 
     fifo_proc : process (par_clk)
-        variable shift_v : std_logic_vector (32 * 12 - 1 downto 0);
-        variable shift_cnt_v : std_logic_vector (6 downto 0)
+        variable shift_v : std_logic_vector (16 * 12 - 1 downto 0);
+        variable shift_cnt_v : std_logic_vector (3 downto 0)
             := (0 => '0', others => '1');
         variable ctrl_v : std_logic_vector (11 downto 0);
         variable enable_v : std_logic := '0';
@@ -189,7 +189,7 @@ begin
                 shift_cnt_v := (0 => '0', others => '1');
                 ctrl_v := par_ctrl;
             else
-                for I in 0 to 4 loop
+                for I in 0 to 1 loop
                     if shift_cnt_v(0) = '1' then
                         shift_v(I * 64 + 63 downto I * 64) :=
                             shift_v((I + 1) * 64 + 63 downto (I + 1) * 64);

@@ -1714,7 +1714,7 @@ begin
     end process;
 
 
-    fifo_chop_inst : entity work.fifo_chop (RTL_SHIFT)
+    fifo_chop_inst : entity work.fifo_chop (RTL_PACKED)
         port map (
             par_clk => serdes_clk,
             par_enable => par_enable,
