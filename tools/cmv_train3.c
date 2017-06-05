@@ -32,12 +32,12 @@
 
 static char *cmd_name = NULL;
 
-static uint32_t sys_base = 0xF8000000;
+static uintptr_t sys_base = 0xF8000000;
 static uint32_t sys_size = 0x00001000;
 
-static uint32_t sys_addr = 0xF8000000;
+static uintptr_t sys_addr = 0xF8000000;
 
-static uint32_t cmv_base = 0x60000000;
+static uintptr_t cmv_base = 0x60000000;
 static uint32_t cmv_size = 0x00400000;
 
 static char *dev_mem = "/dev/mem";
@@ -109,13 +109,13 @@ long long int argtoll(
 
 uint32_t get_sys_reg(unsigned reg)
 {
-    volatile uint32_t *ptr = (uint32_t *)(sys_addr);
+    volatile uintptr_t *ptr = (uintptr_t *)(sys_addr);
     return ptr[reg];
 }
 
 void    set_sys_reg(unsigned reg, uint32_t val)
 {
-    volatile uint32_t *ptr = (uint32_t *)(sys_addr);
+    volatile uintptr_t *ptr = (uintptr_t *)(sys_addr);
     ptr[reg] = val;
 }
 
@@ -160,7 +160,7 @@ void cmv_set_pattern(uint32_t p)
 {
     set_cmv_reg(78, p & 0xFF);
     set_cmv_reg(79, (p >> 8));
-    set_fil_reg(0, p);
+    set_fil_reg(FIL_REG_PATTERN, p);
 }
 
 
@@ -316,14 +316,14 @@ int     main(int argc, char *argv[])
     // set_sys_reg(144, reset & ~2);        /* serdes reset         */
     // set_sys_reg(144, reset | 2);         /* serdes enable        */
 
-    //set_fil_reg(FIL_REG_OVERRIDE, 0x00FF0004);    // debug override
+    set_fil_reg(FIL_REG_OVERRIDE, 0x00FF0004);    // debug override
 
     #if 0
     printf("1 ...\n");
 
     for (int j = 0; j < 16; j++) {
             for (int i = 0; i < 4096; i++) {
-                    set_fil_reg(0,i);
+                    set_fil_reg(FIL_REG_PATTERN,i);
                     usleep(100);
                     int res = (get_del_reg(j) & 0x30000000);
                     if(res == 0x20000000 || res == 0) {
@@ -339,7 +339,7 @@ int     main(int argc, char *argv[])
             usleep(100);
 
             for (int i = 0; i < 4096; i++) {
-                    set_fil_reg(0,i);
+                    set_fil_reg(FIL_REG_PATTERN,i);
                     usleep(10);
                     int res = (get_del_reg(0) & 0x30000000);
                     if(res == 0x20000000) {
@@ -465,34 +465,34 @@ int     main(int argc, char *argv[])
         set_del_reg(c, dly);
     }
 
-    //set_fil_reg(FIL_REG_OVERRIDE, 0x00FF0000);    // debug override
+    set_fil_reg(FIL_REG_OVERRIDE, 0x00FF0000);    // debug override
 
     uint32_t check = 0xFFFFFFFF;
 
     if (opt_all) {
         printf("checking all bit pattern ...\n");
 
-        for (int p=0; p<(1<<10); p++) {
-            cmv_set_pattern(pattern);
-            usleep(100);
-            check &= get_fil_reg(6);
-            check &= ~get_fil_reg(7);
-        }
-
-        // for (int j = 0; j <= 0x3FF; j++) {
-        //     set_cmv_reg(78, j & 0xFF);
-        //     set_cmv_reg(79, (j >> 8));
+        // for (int p=0; p<(1<<10); p++) {
+        //     cmv_set_pattern(pattern);
         //     usleep(100);
-
-        //     for (int i = 0; i < 17; i++) {
-        //         set_fil_reg(0, j);
-        //         usleep(10);
-        //         int res = (get_del_reg(i) & 0x30000000);
-        //         if(res != 0x20000000) {
-        //             printf("[%d] 0x%08x\n", i, j);
-        //         }
-        //     } 
+        //     check &= get_fil_reg(FIL_REG_MATCH);
+        //     check &= ~get_fil_reg(FIL_REG_MISMATCH);
         // }
+
+        for (int j = 0; j <= 0x3FF; j++) {
+            set_cmv_reg(78, j & 0xFF);
+            set_cmv_reg(79, (j >> 8));
+            usleep(100);
+
+            for (int i = 0; i < 17; i++) {
+                set_fil_reg(FIL_REG_PATTERN, j);
+                usleep(10);
+                int res = (get_del_reg(i) & 0x30000000);
+                if(res != 0x20000000) {
+                    printf("[%d] 0x%08x\n", i, j);
+                }
+            } 
+        }
 
     } else {
         printf("checking bit pattern ...\n");
@@ -501,24 +501,24 @@ int     main(int argc, char *argv[])
             cmv_set_pattern(1 << b);
 
             usleep(50000);
-            check &= get_fil_reg(6);
-            check &= ~get_fil_reg(7);
-            printf("match: %016x not mismatch: %016x\n", get_fil_reg(6), ~get_fil_reg(7));
+            check &= get_fil_reg(FIL_REG_MATCH);
+            check &= ~get_fil_reg(FIL_REG_MISMATCH);
+            printf("match: %016x not mismatch: %016x\n", get_fil_reg(FIL_REG_MATCH), ~get_fil_reg(FIL_REG_MISMATCH));
         }
 
         for (int b=0; b<10; b++) {
             cmv_set_pattern((~(1 << b))&0x3FF);
     
             usleep(50000);
-            check &= get_fil_reg(6);
-            check &= ~get_fil_reg(7);
-            printf("match: %016x not mismatch: %016x\n", get_fil_reg(6), ~get_fil_reg(7));
+            check &= get_fil_reg(FIL_REG_MATCH);
+            check &= ~get_fil_reg(FIL_REG_MISMATCH);
+            printf("match: %016x not mismatch: %016x\n", get_fil_reg(FIL_REG_MATCH), ~get_fil_reg(FIL_REG_MISMATCH));
         }
     }
 
     printf("result = 0x%08X\n", check);
 
-    //set_fil_reg(FIL_REG_OVERRIDE, 0x00000000);    // unlock override
+    set_fil_reg(FIL_REG_OVERRIDE, 0x00000000);    // unlock override
     
     cmv_set_pattern(pattern);
 
