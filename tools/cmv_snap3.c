@@ -783,11 +783,16 @@ regs:
         fprintf(stderr, "writing image data ...\n");
         int i = 0;
 
-        for (int frame = 0; frame < num_frames; frame++) {
+        /* for (int frame = 0; frame < num_frames; frame++) {
             for (int row = 0; row < 1088+0; row+=1) {
                 write_dline(dp, 16*128*2/4/2);
                 dp += 16*128*2/4/2;
             }
+        } */
+
+        // 2048*1088*(12/8)
+        if(write(1, dp, 3342336) != 3342336) {
+            fprintf(stderr, "Failed to write memory content.\n");
         }
 
 skip:

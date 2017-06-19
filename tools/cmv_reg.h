@@ -15,8 +15,6 @@
 #ifndef	_CMV_REG_H_
 #define	_CMV_REG_H_
 
-#include <stdint.h>
-
 #ifdef	REG_DELAY
 #define	delay(n)	usleep(REG_DELAY * n)
 #else
@@ -42,13 +40,13 @@ void	set_cmv_reg(unsigned reg, uint16_t val)
 
 uint32_t get_fil_reg(unsigned reg)
 {
-	volatile uint32_t *ptr = (uint32_t *)(cmv_addr + 0x00010000);
+	volatile uint32_t *ptr = (uint32_t *)(cmv_addr + 0x00100100);
 	return ptr[reg];
 }
 
 void	set_fil_reg(unsigned reg, uint32_t val)
 {
-	volatile uint32_t *ptr = (uint32_t *)(cmv_addr + 0x00010000);
+	volatile uint32_t *ptr = (uint32_t *)(cmv_addr + 0x00100100);
 	ptr[reg] = val;
 	delay(1);
 }
@@ -88,13 +86,13 @@ enum _fil_reg {
 
 uint32_t get_del_reg(unsigned reg)
 {
-	volatile uint32_t *ptr = (uint32_t *)(cmv_addr + 0x00100000);
+	volatile uint32_t *ptr = (uint32_t *)(cmv_addr + 0x00200000);
 	return ptr[reg];
 }
 
 void	set_del_reg(unsigned reg, uint32_t val)
 {
-	volatile uint32_t *ptr = (uint32_t *)(cmv_addr + 0x00100000);
+	volatile uint32_t *ptr = (uint32_t *)(cmv_addr + 0x00200000);
 	ptr[reg] = val;
 	delay(5);
 }
@@ -102,14 +100,14 @@ void	set_del_reg(unsigned reg, uint32_t val)
 
 uint32_t get_rcn_col(unsigned col)
 {
-	volatile uint32_t *ptr = (uint32_t *)(cmv_addr + 0x00300000);
-	return ptr[(col/2) + (col&1)*0x800];
+	volatile uint32_t *ptr = (uint32_t *)(cmv_addr + 0x00302000);
+	return ptr[(col/2) - (col&1)*0x800];
 }
 
 void	set_rcn_col(unsigned col, uint32_t val)
 {
-	volatile uint32_t *ptr = (uint32_t *)(cmv_addr + 0x00300000);
-	ptr[(col/2) + (col&1)*0x800] = val;
+	volatile uint32_t *ptr = (uint32_t *)(cmv_addr + 0x00302000);
+	ptr[(col/2) - (col&1)*0x800] = val;
 }
 
 uint32_t get_rcn_row(unsigned row)

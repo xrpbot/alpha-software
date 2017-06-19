@@ -1,0 +1,23 @@
+#!/bin/sh
+
+cmv_reg() {
+    addr=$(( 0x60000000 + ($1 * 4) ))
+    [ $# -gt 1 ] \
+	&& devmem $addr 32 $2 \
+	|| devmem $addr 32
+}
+
+fil_reg() {
+    addr=$(( 0x60100100 + ($1 * 4) ))
+    [ $# -gt 1 ] \
+	&& devmem $addr 32 $2 \
+	|| devmem $addr 32
+}
+
+del_reg() {
+    addr=$(( 0x60200000 + ($1 * 4) ))
+    [ $# -gt 1 ] \
+	&& devmem $addr 32 $2 \
+	|| devmem $addr 32
+}
+

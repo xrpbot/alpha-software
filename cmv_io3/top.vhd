@@ -1668,23 +1668,23 @@ begin
             fifo_wrdy => fifo_data_wrdy );
 
 
-    --pixel_remap_even_inst : entity work.pixel_remap
-    --    generic map (
-    --        NB_LANES => CHANNELS
-    --    )
-    --    port map (
-    --        clk      => serdes_clkdiv,
-    --        --
-    --        dv_par   => par_valid,
-    --        ctrl_in  => par_ctrl,
-    --        par_din  => par_data(CHANNELS-1 downto 0),
-    --        --
-    --        ctrl_out => map_ctrl,
-    --        par_dout => map_data(CHANNELS-1 downto 0) 
-    --    );
+    pixel_remap_even_inst : entity work.pixel_remap
+        generic map (
+            NB_LANES => CHANNELS
+        )
+        port map (
+            clk      => serdes_clkdiv,
+            --
+            dv_par   => par_valid,
+            ctrl_in  => par_ctrl,
+            par_din  => par_data(CHANNELS-1 downto 0),
+            --
+            ctrl_out => map_ctrl,
+            par_dout => map_data(CHANNELS-1 downto 0)
+        );
 
-    map_ctrl <= par_ctrl;
-    map_data <= par_data(CHANNELS-1 downto 0);
+    -- map_ctrl <= par_ctrl;
+    -- map_data <= par_data(CHANNELS-1 downto 0);
 
     valid_proc : process (serdes_clkdiv)
     begin
@@ -1749,16 +1749,16 @@ begin
         end if;
     end process;
 
---  delay_inst0 : entity work.sync_delay
---      generic map (
---          STAGES => 2,
---          DATA_WIDTH => data_in'length )
---      port map (
---          clk => fifo_data_wclk,
---          data_in => data_in,
---          data_out => data_in_d );
+  delay_inst0 : entity work.sync_delay
+      generic map (
+          STAGES => 2,
+          DATA_WIDTH => data_in'length )
+      port map (
+          clk => fifo_data_wclk,
+          data_in => data_in,
+          data_out => data_in_d );
 
-    data_in_d <= data_in;
+    -- data_in_d <= data_in;
 
     track_proc : process (fifo_data_wclk)
         variable lval_v : std_logic := '0';
@@ -1810,7 +1810,7 @@ begin
 
     delay_inst1 : entity work.sync_delay
         generic map (
-            STAGES => 3,
+            STAGES => 1,
             DATA_WIDTH => data_ctrl'length )
         port map (
             clk => fifo_data_wclk,
@@ -1819,7 +1819,7 @@ begin
 
     delay_inst2 : entity work.sync_delay
         generic map (
-            STAGES => 4,
+            STAGES => 2,
             DATA_WIDTH => 1 )
         port map (
             clk => fifo_data_wclk,

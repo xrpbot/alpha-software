@@ -27,6 +27,9 @@ cmv_perf3 : cmv_perf3.o
 pong : pong.o
 	$(CC) $(CFLAGS) -lrt -lm -o $@ $^
 
+lut_conf3: lut_conf3.o
+	$(CC) $(CFLAGS) -o $@ $^ -lm
+
 cmv_snap3.static : cmv_snap3.o
 	$(CC) $(CFLAGS) -static $(LDFLAGS) -o $@ $^
 
